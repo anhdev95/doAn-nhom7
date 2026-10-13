@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · IE103 Nhóm 7</title>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+  <main class="container-fluid pb-5">
+    <h4 class="mb-3">Dashboard</h4>
+    <div id="dash-error"></div>
+    <div class="row g-3 mb-3" id="dash-cards"></div>
+    <div class="row g-3">
+      <div class="col-lg-4">
+        <div class="card mb-3"><div class="card-header">Kết nối SQL Server</div><div class="card-body" id="dash-server"></div></div>
+        <div class="card mb-3"><div class="card-header">Tích hợp phần thành viên</div><div class="card-body" id="dash-integration"></div></div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card mb-3"><div class="card-header">Số dòng 16 bảng theo Database contract</div><div class="card-body" id="dash-tables"></div></div>
+        <div class="card mb-3"><div class="card-header">Phân bố trạng thái (miền giá trị đã chốt)</div><div class="card-body" id="dash-domains"></div></div>
+      </div>
+    </div>
+  </main>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

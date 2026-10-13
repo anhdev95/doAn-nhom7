@@ -1,0 +1,163 @@
+erDiagram
+    PHONGBAN {
+        int MaPB PK
+        nvarchar_100 TenPB UK
+        nvarchar_300 MoTa
+    }
+    CHUCVU {
+        int MaCV PK
+        nvarchar_100 TenCV UK
+        nvarchar_300 MoTaCV
+        nvarchar_300 TrachNhiem
+        nvarchar_300 YeuCauKyNang
+    }
+    NHANVIEN {
+        int MaNV PK
+        nvarchar_100 HoTen
+        date NgaySinh
+        nvarchar_10 GioiTinh
+        varchar_12 CCCD UK
+        varchar_100 Email UK
+        varchar_15 SoDienThoai
+        nvarchar_200 DiaChi
+        date NgayVaoLam
+        nvarchar_30 TrangThai
+        int MaPB FK
+        int MaCV FK
+        int MaQuanLy FK
+    }
+    HOPDONG {
+        int MaHD PK
+        int MaNV FK
+        nvarchar_50 LoaiHD
+        date NgayBatDau
+        date NgayKetThuc
+        decimal_18_2 LuongCoBan
+        nvarchar_30 TrangThai
+        decimal_18_2 LuongHieuSuat
+        decimal_18_2 PhuCap
+    }
+    DOT_TUYENDUNG {
+        int MaDotTD PK
+        nvarchar_200 TenDotTD
+        date NgayBatDau
+        date NgayKetThuc
+        nvarchar_30 TrangThai
+        decimal_18_2 ChiPhi
+    }
+    VI_TRI_TUYENDUNG {
+        int MaViTri PK
+        int MaDotTD FK
+        nvarchar_100 TenViTri
+        int SoLuong
+        nvarchar_500 YeuCau
+        int MaPB FK
+        int SoVongPV
+    }
+    UNGVIEN {
+        int MaUV PK
+        nvarchar_100 HoTen
+        date NgaySinh
+        varchar_100 Email UK
+        varchar_15 SoDienThoai
+        nvarchar_200 DiaChi
+        nvarchar_100 TrinhDo
+        nvarchar_500 KinhNghiem
+    }
+    UNG_TUYEN {
+        int MaUngTuyen PK
+        int MaUV FK "UNIQUE(MaUV, MaViTri)"
+        int MaViTri FK "UNIQUE(MaUV, MaViTri)"
+        date NgayUngTuyen
+        int VongPhongVan
+        nvarchar_30 KetQua
+        nvarchar_30 TrangThai
+    }
+    DAOTAO {
+        int MaDT PK
+        nvarchar_200 TenKhoaHoc
+        nvarchar_30 HinhThuc
+        date NgayBatDau
+        date NgayKetThuc
+        nvarchar_500 NoiDung
+    }
+    THAM_GIA_DAO_TAO {
+        int MaTG PK
+        int MaNV FK "UNIQUE(MaNV, MaDT)"
+        int MaDT FK "UNIQUE(MaNV, MaDT)"
+        date NgayThamGia
+        nvarchar_100 KetQua
+        nvarchar_300 DanhGia
+    }
+    DANH_GIA {
+        int MaDG PK
+        int MaNV FK
+        nvarchar_50 KyDanhGia
+        date NgayDanhGia
+        decimal_5_2 Diem
+        nvarchar_30 XepLoai
+        nvarchar_500 NhanXet
+    }
+    KHEN_THUONG {
+        int MaKT PK
+        int MaNV FK
+        date NgayKT
+        nvarchar_300 LyDo
+        nvarchar_100 HinhThuc
+        decimal_18_2 SoTien
+    }
+    CHAM_CONG {
+        int MaCC PK
+        int MaNV FK "UNIQUE(MaNV, Ngay)"
+        date Ngay "UNIQUE(MaNV, Ngay)"
+        time GioVao
+        time GioRa
+        decimal_5_2 SoGioOT
+        nvarchar_30 TrangThai
+    }
+    DON_NGHI_PHEP {
+        int MaDon PK
+        int MaNV FK
+        date TuNgay
+        date DenNgay
+        decimal_5_2 SoNgay
+        nvarchar_300 LyDo
+        nvarchar_30 TrangThai
+    }
+    BANG_LUONG {
+        int MaLuong PK
+        int MaNV FK "UNIQUE(MaNV, Thang, Nam)"
+        int Thang "UNIQUE(MaNV, Thang, Nam)"
+        int Nam "UNIQUE(MaNV, Thang, Nam)"
+        decimal_18_2 LuongCoBan
+        decimal_18_2 LuongHieuSuat
+        decimal_18_2 PhuCap
+        decimal_18_2 TienThuong
+        decimal_18_2 KhauTru
+        decimal_18_2 LuongThucNhan
+    }
+    PHUC_LOI {
+        int MaPL PK
+        int MaNV FK
+        nvarchar_200 TenPhucLoi
+        date NgayBatDau
+        date NgayKetThuc
+        decimal_18_2 GiaTri
+        nvarchar_30 TrangThai
+    }
+    PHONGBAN ||--o{ NHANVIEN : "gồm"
+    CHUCVU ||--o{ NHANVIEN : "đảm nhiệm"
+    NHANVIEN |o--o{ NHANVIEN : "quản lý"
+    NHANVIEN ||--o{ HOPDONG : "ký"
+    DOT_TUYENDUNG ||--o{ VI_TRI_TUYENDUNG : "gồm"
+    PHONGBAN ||--o{ VI_TRI_TUYENDUNG : "cần tuyển"
+    UNGVIEN ||--o{ UNG_TUYEN : "nộp hồ sơ"
+    VI_TRI_TUYENDUNG ||--o{ UNG_TUYEN : "nhận hồ sơ"
+    NHANVIEN ||--o{ THAM_GIA_DAO_TAO : "tham gia"
+    DAOTAO ||--o{ THAM_GIA_DAO_TAO : "có học viên"
+    NHANVIEN ||--o{ DANH_GIA : "được đánh giá"
+    NHANVIEN ||--o{ KHEN_THUONG : "được khen thưởng"
+    NHANVIEN ||--o{ CHAM_CONG : "chấm công"
+    NHANVIEN ||--o{ DON_NGHI_PHEP : "nộp đơn"
+    NHANVIEN ||--o{ BANG_LUONG : "nhận lương"
+    NHANVIEN ||--o{ PHUC_LOI : "hưởng"

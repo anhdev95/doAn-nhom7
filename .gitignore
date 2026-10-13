@@ -1,0 +1,24 @@
+# ===== Hệ thống / môi trường =====
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+
+# ===== Tài liệu môn học (không nộp) =====
+/FinalProject_GUIDE_UPDATED.pdf
+/FinalProject_Note_2026.pdf
+/IE103-de-cuong-mon-hoc.pdf
+/Report_Template (Team) (2).docx
+
+# ===== Tài liệu nội bộ nhóm (gửi riêng, không nộp) =====
+/mac/
+Source/Website/docs/
+*.md
+# Giữ các README người chấm cần để chạy project
+!Source/README.md
+!Source/Website/README.md
+!Source/Database/README.md
+!Source/Database/Security/README.md
+!Source/Database/ERD/ERD.md

@@ -1,0 +1,25 @@
+{
+  "name": "ie103-hrm-demo",
+  "version": "1.0.0",
+  "description": "IE103 Nhóm 7 – Website Demo hệ thống quản lý nhân sự (Express + mssql, dữ liệu load trực tiếp từ SQL Server)",
+  "main": "src/app.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "check-db": "node scripts/check-db.js",
+    "validate-integration": "node scripts/validate-integration.js",
+    "check": "node scripts/check.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mssql": "^12.7.4"
+  }
+}

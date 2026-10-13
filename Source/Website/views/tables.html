@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Database Tables · IE103 Nhóm 7</title>
+  <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app-nav"></div>
+  <main class="container-fluid pb-5">
+    <h4 class="mb-3">Database Tables</h4>
+    <div class="row g-2 align-items-end mb-2">
+      <div class="col-12 col-sm-6 col-lg-3"><label class="form-label small mb-1" for="tbl-select">Bảng</label><select id="tbl-select" class="form-select form-select-sm"></select></div>
+      <div class="col-4 col-sm-2 col-lg-1"><label class="form-label small mb-1" for="tbl-size">Dòng/trang</label>
+        <select id="tbl-size" class="form-select form-select-sm"><option>20</option><option selected>50</option><option>100</option><option>500</option></select></div>
+      <div class="col-4 col-sm-2 col-lg-1"><label class="form-label small mb-1" for="tbl-order">Sắp xếp PK</label>
+        <select id="tbl-order" class="form-select form-select-sm"><option value="asc">Tăng</option><option value="desc">Giảm</option></select></div>
+      <div class="col-auto"><button id="tbl-reload" class="btn btn-sm btn-primary">Tải lại</button></div>
+      <div class="col-auto"><button id="tbl-export" class="btn btn-sm btn-outline-success" title="Xuất toàn bộ bảng đang chọn ra CSV (dữ liệu lấy trực tiếp từ SQL Server)">Export CSV</button></div>
+    </div>
+    <div class="small text-muted mb-2" id="tbl-info"></div>
+    <div id="tbl-msg"></div>
+    <div id="tbl-content"></div>
+    <nav class="mt-2"><ul class="pagination pagination-sm flex-wrap" id="tbl-pages"></ul></nav>
+  </main>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/tables.js"></script>
+</body>
+</html>

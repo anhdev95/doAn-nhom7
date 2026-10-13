@@ -1,0 +1,12 @@
+body { background: #f5f6f8; }
+.data-table { max-height: 420px; overflow: auto; background: #fff; }
+.data-table table { font-size: 0.85rem; white-space: nowrap; }
+.data-table thead th { position: sticky; top: 0; z-index: 1; }
+.stat-value { font-size: 2rem; font-weight: 600; }
+.sql-code { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; font-size: 0.8rem; max-height: 360px; overflow: auto; white-space: pre; }
+.step-title { font-weight: 600; color: #0d6efd; }
+.case-item.active { background: #e7f1ff; color: inherit; border-color: #9ec5fe; }
+.report-frame { border: 1px solid #dee2e6; }
+.report-img { max-width: 100%; height: auto; border: 1px solid #dee2e6; }
+.sql-code { max-width: 100%; }
+@media (max-width: 576px) { .stat-value { font-size: 1.5rem; } .data-table { max-height: 360px; } }
