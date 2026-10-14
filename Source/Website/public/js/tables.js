@@ -19,7 +19,7 @@ async function loadTable() {
     return;
   }
   $('tbl-export').disabled = false;
-  $('tbl-info').textContent = `${d.label} · ${d.total} dòng · trang ${d.page}/${d.totalPages} · sắp xếp theo ${d.pk} ${d.order === 'desc' ? 'giảm dần' : 'tăng dần'}`;
+  $('tbl-info').textContent = `${d.label} · ${d.total} dòng · trang ${d.page}/${d.totalPages} · sắp xếp theo ${pkLabel(d.pk)} ${d.order === 'desc' ? 'giảm dần' : 'tăng dần'}`;
   $('tbl-content').innerHTML = d.total ? renderTable(d) : `${renderTable(d)}<div class="small text-muted mt-1">Bảng chưa có dữ liệu.</div>`;
 
   const items = [];

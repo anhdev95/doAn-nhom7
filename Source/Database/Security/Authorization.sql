@@ -76,9 +76,11 @@ GRANT SELECT, INSERT, UPDATE ON dbo.UNG_TUYEN         TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.DAOTAO            TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.THAM_GIA_DAO_TAO  TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.DANH_GIA          TO HR_ROLE;
+GRANT SELECT, INSERT, UPDATE ON dbo.DANH_GIA_CHI_TIET TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.KHEN_THUONG       TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.CHAM_CONG         TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.DON_NGHI_PHEP     TO HR_ROLE;
+GRANT SELECT, INSERT, UPDATE ON dbo.DS_PHUC_LOI       TO HR_ROLE;
 GRANT SELECT, INSERT, UPDATE ON dbo.PHUC_LOI          TO HR_ROLE;
 -- Bảng lương: HR chỉ được xem, không được sửa.
 GRANT SELECT                 ON dbo.BANG_LUONG        TO HR_ROLE;
@@ -96,6 +98,7 @@ GRANT SELECT ON dbo.HOPDONG       TO ACCOUNTING_ROLE;
 GRANT SELECT ON dbo.CHAM_CONG     TO ACCOUNTING_ROLE;
 GRANT SELECT ON dbo.DON_NGHI_PHEP TO ACCOUNTING_ROLE;
 GRANT SELECT ON dbo.KHEN_THUONG   TO ACCOUNTING_ROLE;
+GRANT SELECT ON dbo.DS_PHUC_LOI   TO ACCOUNTING_ROLE;
 GRANT SELECT ON dbo.PHUC_LOI      TO ACCOUNTING_ROLE;
 -- Nghiệp vụ lương.
 GRANT SELECT, INSERT, UPDATE ON dbo.BANG_LUONG TO ACCOUNTING_ROLE;
@@ -123,15 +126,18 @@ GRANT SELECT ON dbo.UNG_TUYEN         TO MANAGER_ROLE;
 GRANT SELECT ON dbo.DAOTAO            TO MANAGER_ROLE;
 GRANT SELECT ON dbo.THAM_GIA_DAO_TAO  TO MANAGER_ROLE;
 GRANT SELECT ON dbo.DANH_GIA          TO MANAGER_ROLE;
+GRANT SELECT ON dbo.DANH_GIA_CHI_TIET TO MANAGER_ROLE;
 GRANT SELECT ON dbo.KHEN_THUONG       TO MANAGER_ROLE;
 GRANT SELECT ON dbo.CHAM_CONG         TO MANAGER_ROLE;
 GRANT SELECT ON dbo.DON_NGHI_PHEP     TO MANAGER_ROLE;
 GRANT SELECT ON dbo.BANG_LUONG        TO MANAGER_ROLE;
+GRANT SELECT ON dbo.DS_PHUC_LOI       TO MANAGER_ROLE;
 GRANT SELECT ON dbo.PHUC_LOI          TO MANAGER_ROLE;
 -- Duyệt đơn nghỉ phép: chỉ được cập nhật cột TrangThai (quyền theo cột).
 GRANT UPDATE ON dbo.DON_NGHI_PHEP (TrangThai) TO MANAGER_ROLE;
--- Đánh giá nhân viên.
-GRANT INSERT, UPDATE ON dbo.DANH_GIA TO MANAGER_ROLE;
+-- Đánh giá nhân viên (lần đánh giá + KPI chi tiết).
+GRANT INSERT, UPDATE ON dbo.DANH_GIA          TO MANAGER_ROLE;
+GRANT INSERT, UPDATE ON dbo.DANH_GIA_CHI_TIET TO MANAGER_ROLE;
 -- Hạn chế chỉnh dữ liệu nhạy cảm.
 DENY INSERT, UPDATE, DELETE ON dbo.BANG_LUONG TO MANAGER_ROLE;
 DENY INSERT, UPDATE, DELETE ON dbo.HOPDONG    TO MANAGER_ROLE;
@@ -158,7 +164,7 @@ GO
 
 /* ---------------------------------------------------------------------
    Bước 8. Quyền cho login của Website Demo (hrm_web)
-   Website cần: đọc 16 bảng, chạy Execute (COMMIT) của phần Xử lý thông tin,
+   Website cần: đọc 18 bảng, chạy Execute (COMMIT) của phần Xử lý thông tin,
    đọc định nghĩa object, xem quyền của các role, xem lịch sử backup/restore.
    --------------------------------------------------------------------- */
 IF IS_ROLEMEMBER(N'db_datareader', N'hrm_web') = 0 ALTER ROLE db_datareader ADD MEMBER hrm_web;

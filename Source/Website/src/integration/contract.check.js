@@ -1,7 +1,7 @@
 // Đối chiếu database thật với Database contract (chỉ đọc catalog + đếm dữ liệu lệch quy tắc).
 // Dùng bởi `npm run check-db`. Không sửa schema/dữ liệu.
-const { TABLES } = require('../config/tables');
-const { COLUMNS, FOREIGN_KEYS, UNIQUES, DOMAINS, SALARY_RULE } = require('../config/contract');
+const { TABLES, pkColumns } = require('../config/tables');
+const { COLUMNS, FOREIGN_KEYS, UNIQUES, DOMAINS, SALARY_RULE, KPI_RULE } = require('../config/contract');
 const sqlService = require('../services/sql.service');
 
 const pass = (message) => ({ level: 'pass', message });
@@ -67,9 +67,10 @@ async function checkContract() {
     if (extra.length) results.push(warn(`${table.name}: có cột ngoài contract: ${extra.map((c) => c.COLUMN_NAME).join(', ')}.`));
 
     const pk = indexes.find((i) => i.tableName.toUpperCase() === table.name && i.isPk);
+    const wantPk = pkColumns(table).join(',');
     if (!pk) results.push(fail(`${table.name}: chưa có PRIMARY KEY.`));
-    else if (pk.cols.toLowerCase() !== table.pk.toLowerCase()) results.push(fail(`${table.name}: PK là (${pk.cols}), contract là (${table.pk}).`));
-    else results.push(info(`${table.name}: PK ${table.pk} ${pk.hasIdentity ? 'có IDENTITY' : 'không IDENTITY'}.`));
+    else if (pk.cols.toLowerCase() !== wantPk.toLowerCase()) results.push(fail(`${table.name}: PK là (${pk.cols}), contract là (${wantPk}).`));
+    else results.push(info(`${table.name}: PK ${wantPk} ${pk.hasIdentity ? 'có IDENTITY' : 'không IDENTITY'}.`));
   }
 
   for (const [t, c, rt, rc] of FOREIGN_KEYS) {
@@ -107,6 +108,29 @@ async function checkContract() {
     results.push(mismatched
       ? warn(`BANG_LUONG: ${mismatched}/${total} dòng lệch quy tắc ${SALARY_RULE}.`)
       : pass(`BANG_LUONG: ${total} dòng khớp quy tắc ${SALARY_RULE}.`));
+  }
+
+  if (present.has('DANH_GIA') && present.has('DANH_GIA_CHI_TIET')) {
+    const r = await sqlService.query(`
+      SELECT (SELECT COUNT(*) FROM [DANH_GIA_CHI_TIET]) AS totalDetail,
+             (SELECT COUNT(*) FROM [DANH_GIA_CHI_TIET]
+               WHERE KPIMucTieu <> 0 AND HieuSuatKPI <> CAST(ROUND(KPIThucTe * 100 / KPIMucTieu, 2) AS DECIMAL(6, 2))) AS badDetail,
+             (SELECT COUNT(*) FROM [DANH_GIA]) AS total,
+             (SELECT COUNT(*) FROM [DANH_GIA] dg
+               WHERE dg.HieuSuatKPITong <> ISNULL((SELECT CAST(ROUND(SUM(ct.HieuSuatKPI * ct.TrongSo) / 100, 2) AS DECIMAL(6, 2))
+                                                     FROM [DANH_GIA_CHI_TIET] ct WHERE ct.MaDG = dg.MaDG), 0)) AS badTotal,
+             (SELECT COUNT(*) FROM [DANH_GIA] dg
+               WHERE ISNULL((SELECT SUM(ct.TrongSo) FROM [DANH_GIA_CHI_TIET] ct WHERE ct.MaDG = dg.MaDG), 0) <> 100) AS badWeight`);
+    const { totalDetail, badDetail, total, badTotal, badWeight } = r.recordset[0];
+    results.push(badDetail
+      ? warn(`DANH_GIA_CHI_TIET: ${badDetail}/${totalDetail} dòng lệch quy tắc ${KPI_RULE.detail}.`)
+      : pass(`DANH_GIA_CHI_TIET: ${totalDetail} dòng khớp quy tắc ${KPI_RULE.detail}.`));
+    results.push(badTotal
+      ? warn(`DANH_GIA: ${badTotal}/${total} dòng lệch quy tắc ${KPI_RULE.total}.`)
+      : pass(`DANH_GIA: ${total} dòng khớp quy tắc ${KPI_RULE.total}.`));
+    results.push(badWeight
+      ? warn(`DANH_GIA: ${badWeight}/${total} lần đánh giá có tổng TrongSo khác 100.`)
+      : pass(`DANH_GIA: ${total} lần đánh giá có tổng TrongSo = 100.`));
   }
   return results;
 }

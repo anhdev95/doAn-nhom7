@@ -42,8 +42,8 @@ function renderIntegration(i) {
 
 function renderTables(tables, missing) {
   const note = missing.length
-    ? `<div class="alert alert-warning small py-2">${statusBadge('missing')} Chưa có ${missing.length}/16 bảng: ${missing.map(esc).join(', ')}. Chạy script trong <code>Source/Database</code>.</div>`
-    : '<div class="small text-success mb-2">Đủ 16 bảng.</div>';
+    ? `<div class="alert alert-warning small py-2">${statusBadge('missing')} Chưa có ${missing.length}/${tables.length} bảng: ${missing.map(esc).join(', ')}. Chạy script trong <code>Source/Database</code>.</div>`
+    : `<div class="small text-success mb-2">Đủ ${tables.length} bảng.</div>`;
   return note + `<div class="row row-cols-2 row-cols-md-4 g-2">${tables.map((t) => `
     <div class="col"><a class="d-block border rounded p-2 bg-white text-decoration-none h-100" href="/tables?t=${esc(t.name)}">
       <div class="small text-muted text-truncate">${esc(t.label)}</div>

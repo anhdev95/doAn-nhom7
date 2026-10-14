@@ -5,8 +5,6 @@ const OWNER = 'chờ bàn giao package Xử lý thông tin (Source/Database/Proc
 
 let current = null; // chi tiết case đang mở
 
-function rowKey(row, pk) { return String(row[pk]); }
-
 // Tô màu dòng thêm mới/thay đổi giữa dữ liệu trước và sau (so theo PK).
 function diffKeys(before, after) {
   const changed = new Set();
@@ -18,9 +16,11 @@ function diffKeys(before, after) {
   }
   const now = new Set(after.rows.map((r) => rowKey(r, after.pk)));
   // Trang chỉ chứa N dòng có PK lớn nhất: dòng cũ bị đẩy khỏi trang không phải là bị xóa.
+  // PK kép: so theo cột PK đầu tiên.
   const pageFull = after.rows.length >= after.pageSize;
-  const minShown = Math.min(...after.rows.map((r) => Number(r[after.pk])));
-  const removed = [...old.keys()].filter((k) => !now.has(k) && (!pageFull || Number(k) >= minShown));
+  const firstPk = Array.isArray(after.pk) ? after.pk[0] : after.pk;
+  const minShown = Math.min(...after.rows.map((r) => Number(r[firstPk])));
+  const removed = [...old.keys()].filter((k) => !now.has(k) && (!pageFull || Number(k.split('|')[0]) >= minShown));
   return { changed, removed };
 }
 
@@ -31,10 +31,10 @@ function renderRelated(list, compareWith) {
     const { changed, removed } = compareWith ? diffKeys(compareWith[i], t) : { changed: new Set(), removed: [] };
     const note = compareWith
       ? `<span class="small ms-2">${changed.size ? `<span class="badge text-bg-warning">${changed.size} dòng thêm/sửa</span>` : ''}
-         ${removed.length ? `<span class="badge text-bg-danger">${removed.length} dòng bị xóa (${t.pk} = ${removed.map(esc).join(', ')})</span>` : ''}
+         ${removed.length ? `<span class="badge text-bg-danger">${removed.length} dòng bị xóa (${esc(pkLabel(t.pk))} = ${removed.map(esc).join(', ')})</span>` : ''}
          ${!changed.size && !removed.length ? '<span class="badge text-bg-light text-dark border">không thay đổi</span>' : ''}</span>`
       : '';
-    return `<div class="mb-3"><div class="small mb-1"><code>${esc(t.table)}</code> – ${t.total} dòng (hiển thị ${t.rows.length} dòng mới nhất theo ${esc(t.pk)})${note}</div>
+    return `<div class="mb-3"><div class="small mb-1"><code>${esc(t.table)}</code> – ${t.total} dòng (hiển thị ${t.rows.length} dòng mới nhất theo ${esc(pkLabel(t.pk))})${note}</div>
       ${renderTable(t, { pk: t.pk, changedKeys: changed })}</div>`;
   }).join('');
 }

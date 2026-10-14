@@ -137,7 +137,7 @@ function validateRelatedTables(list, issues) {
     const pageSize = t && typeof t === 'object' ? t.pageSize : undefined;
     const table = getTable(name);
     if (!table || table.name !== name) {
-      issues.push(fail(`relatedTables[${i}] "${name}" không thuộc 16 bảng contract (viết HOA đúng tên bảng).`));
+      issues.push(fail(`relatedTables[${i}] "${name}" không thuộc các bảng contract (viết HOA đúng tên bảng).`));
       return;
     }
     if (pageSize !== undefined && !(Number.isInteger(pageSize) && pageSize >= 1 && pageSize <= 500)) {

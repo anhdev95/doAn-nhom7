@@ -84,14 +84,18 @@ function manifestBanner(manifest, issues, ownerText) {
   return `<div class="small text-muted mb-2">Nguồn: <code>${esc(manifest.path)}</code></div>`;
 }
 
+// pk: tên cột PK, hoặc mảng tên cột nếu là PK kép (vd. ['MaDG', 'STT']).
+function rowKey(row, pk) { return Array.isArray(pk) ? pk.map((c) => String(row[c])).join('|') : String(row[pk]); }
+function pkLabel(pk) { return Array.isArray(pk) ? pk.join(', ') : pk; }
+
 // data: { columns: [{name,type}], rows: [{...}] }
-// opts.changedKeys: Set khóa (giá trị PK) được tô màu; opts.pk: tên cột PK.
+// opts.changedKeys: Set khóa (rowKey) được tô màu; opts.pk: cột PK.
 function renderTable(data, opts = {}) {
   if (!data || !data.columns || !data.columns.length) return '<div class="text-muted small">(không có cột)</div>';
   const head = data.columns.map((c) => `<th title="${esc(c.type || '')}">${esc(c.name)}</th>`).join('');
   const body = data.rows.length
     ? data.rows.map((row) => {
-      const key = opts.pk ? String(row[opts.pk]) : null;
+      const key = opts.pk ? rowKey(row, opts.pk) : null;
       const cls = key && opts.changedKeys && opts.changedKeys.has(key) ? ' class="table-warning"' : '';
       return `<tr${cls}>${data.columns.map((c) => {
         const v = row[c.name];

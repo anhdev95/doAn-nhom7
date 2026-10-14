@@ -17,8 +17,8 @@ const print = (level, message) => console.log(`${color[level]}[${level.toUpperCa
     print('pass', `${server.serverName} | SQL Server ${server.productVersion} (${server.edition})`);
     print('info', `Login: ${server.loginName} | Database user: ${server.databaseUser}`);
 
-    console.log('\n== Số dòng 16 bảng ==');
     const tables = await sqlService.countAllTables();
+    console.log(`\n== Số dòng ${tables.length} bảng ==`);
     for (const t of tables) console.log(`  ${t.exists ? '✔' : '✘'} ${t.name.padEnd(18)} ${t.exists ? `${t.total} dòng` : 'chưa tồn tại'}`);
 
     console.log('\n== Đối chiếu Database contract ==');

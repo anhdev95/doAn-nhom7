@@ -1,0 +1,227 @@
+[
+  {
+    "id": "SP01",
+    "type": "procedure",
+    "title": "Danh sách hợp đồng sắp hết hạn",
+    "description": "Nhập số ngày tới (mặc định 30). Procedure liệt kê các hợp đồng 'Hiệu lực' có ngày kết thúc trong khoảng từ hôm nay đến hôm nay + số ngày, kèm nhân viên, phòng ban và số ngày còn lại (sắp hết hạn lên đầu). Trả thêm tổng số hợp đồng qua tham số OUTPUT @SoLuong. Số ngày ≤ 0 → báo lỗi 50101.",
+    "objectName": "dbo.SP01_HopDongSapHetHan",
+    "sourceFile": "Processing/Procedures.sql",
+    "relatedTables": ["HOPDONG", "NHANVIEN"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP01_HopDongSapHetHan",
+      "transaction": true,
+      "params": [
+        { "name": "SoNgay", "type": "Int", "label": "Số ngày tới", "required": true, "default": 30 }
+      ]
+    }
+  },
+  {
+    "id": "SP02",
+    "type": "procedure",
+    "title": "Chi phí và hiệu quả tuyển dụng theo tháng",
+    "description": "Nhập tháng/năm. Procedure tính tổng chi phí các đợt tuyển dụng bắt đầu trong tháng, số hồ sơ ứng tuyển, số người được tuyển và tỷ lệ đậu (%) của các đợt đó.",
+    "objectName": "dbo.SP02_ChiPhiTuyenDung",
+    "sourceFile": "Processing/Procedures.sql",
+    "relatedTables": ["DOT_TUYENDUNG", "VI_TRI_TUYENDUNG", "UNG_TUYEN"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP02_ChiPhiTuyenDung",
+      "transaction": true,
+      "params": [
+        { "name": "Thang", "type": "Int", "label": "Tháng", "required": true, "default": 10 },
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 }
+      ]
+    }
+  },
+  {
+    "id": "SP03",
+    "type": "procedure",
+    "title": "Lịch sử ứng tuyển của một ứng viên",
+    "description": "Nhập mã ứng viên. Procedure liệt kê các lần ứng tuyển (đợt, vị trí, phòng ban, ngày nộp, vòng phỏng vấn, kết quả, trạng thái), mới nhất lên đầu, và trả số lần ứng tuyển qua OUTPUT @SoLuong. Mã ứng viên không tồn tại → báo lỗi 50103.",
+    "objectName": "dbo.SP03_LichSuUngTuyen",
+    "sourceFile": "Processing/Procedures.sql",
+    "relatedTables": ["UNGVIEN", "UNG_TUYEN"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP03_LichSuUngTuyen",
+      "transaction": true,
+      "params": [
+        { "name": "MaUV", "type": "Int", "label": "Mã ứng viên", "required": true, "default": 9 }
+      ]
+    }
+  },
+  {
+    "id": "SP04",
+    "type": "procedure",
+    "title": "Thống kê nhân viên theo phòng ban",
+    "description": "Nhập mã phòng ban (để trống = tất cả phòng ban). Procedure đếm số nhân viên Đang làm / Tạm nghỉ / Nghỉ việc và tổng hồ sơ của từng phòng ban; phòng ban chưa có ai vẫn hiện số 0. Mã phòng ban không tồn tại → báo lỗi 50104.",
+    "objectName": "dbo.SP04_ThongKeNhanVienPhongBan",
+    "sourceFile": "Processing/Procedures.sql",
+    "relatedTables": ["PHONGBAN", "NHANVIEN"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP04_ThongKeNhanVienPhongBan",
+      "transaction": true,
+      "params": [
+        { "name": "MaPB", "type": "Int", "label": "Mã phòng ban (để trống = tất cả)", "required": false, "default": null }
+      ]
+    }
+  },
+  {
+    "id": "SP05",
+    "type": "procedure",
+    "title": "Nhân viên không nghỉ phép trong năm",
+    "description": "Nhập năm. Procedure liệt kê nhân viên đang làm, đã vào làm trước cuối năm và không có đơn nghỉ phép 'Đã duyệt' nào giao với năm đó; trả số nhân viên qua OUTPUT @SoLuong.",
+    "objectName": "dbo.SP05_NhanVienKhongNghiPhep",
+    "sourceFile": "Processing/Procedures.sql",
+    "relatedTables": ["NHANVIEN", "DON_NGHI_PHEP"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP05_NhanVienKhongNghiPhep",
+      "transaction": true,
+      "params": [
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 }
+      ]
+    }
+  },
+  {
+    "id": "TRG01",
+    "type": "trigger",
+    "title": "Không cho nộp đơn nghỉ phép trùng thời gian",
+    "description": "Trigger AFTER INSERT, UPDATE trên DON_NGHI_PHEP: nếu nhân viên đã có đơn chưa bị từ chối (Chờ duyệt / Đã duyệt) giao với khoảng TuNgay–DenNgay của đơn mới thì chặn (lỗi 50001). Testcase: 3 bước hợp lệ (nhân viên khác cùng ngày, đơn trùng với đơn đã từ chối) rồi 1 đơn trùng bị chặn.",
+    "objectName": "dbo.TRG01_DonNghiPhep_KhongTrung",
+    "sourceFile": "Processing/Triggers.sql",
+    "relatedTables": ["DON_NGHI_PHEP"],
+    "execute": { "kind": "script", "file": "Processing/Tests/TRG01_DonNghiPhep_KhongTrung.sql", "transaction": true, "params": [] }
+  },
+  {
+    "id": "TRG02",
+    "type": "trigger",
+    "title": "Kiểm tra số ngày nghỉ phép",
+    "description": "Trigger AFTER INSERT, UPDATE trên DON_NGHI_PHEP: SoNgay phải bằng số ngày từ TuNgay đến DenNgay; riêng đơn trong 1 ngày được nghỉ nửa ngày (0.5). Sai → chặn (lỗi 50002). Testcase: đơn 3 ngày, nửa ngày, thêm nhiều dòng hợp lệ, rồi 1 đơn nhập sai số ngày bị chặn.",
+    "objectName": "dbo.TRG02_DonNghiPhep_SoNgay",
+    "sourceFile": "Processing/Triggers.sql",
+    "relatedTables": ["DON_NGHI_PHEP"],
+    "execute": { "kind": "script", "file": "Processing/Tests/TRG02_DonNghiPhep_SoNgay.sql", "transaction": true, "params": [] }
+  },
+  {
+    "id": "TRG03",
+    "type": "trigger",
+    "title": "Không chấm công cho nhân viên đã nghỉ việc",
+    "description": "Trigger AFTER INSERT, UPDATE trên CHAM_CONG: chặn chấm công cho nhân viên 'Nghỉ việc' (lỗi 50003) hoặc ngày chấm công trước ngày vào làm (lỗi 50004). Testcase: chấm công nhân viên đang làm thành công, rồi chấm công NV13 đã nghỉ việc bị chặn.",
+    "objectName": "dbo.TRG03_ChamCong_NVNghiViec",
+    "sourceFile": "Processing/Triggers.sql",
+    "relatedTables": ["CHAM_CONG", "NHANVIEN"],
+    "execute": { "kind": "script", "file": "Processing/Tests/TRG03_ChamCong_NVNghiViec.sql", "transaction": true, "params": [] }
+  },
+  {
+    "id": "TRG04",
+    "type": "trigger",
+    "title": "Mỗi nhân viên chỉ có một hợp đồng hiệu lực",
+    "description": "Trigger AFTER INSERT, UPDATE trên HOPDONG: đếm riêng từng nhân viên bị tác động, nếu có hơn 1 hợp đồng 'Hiệu lực' thì chặn (lỗi 50005). Testcase: thêm HĐ cho 2 nhân viên, tái ký đúng quy trình (HĐ cũ hết hạn trước), rồi thêm HĐ hiệu lực thứ hai bị chặn.",
+    "objectName": "dbo.TRG04_HopDong_MotHieuLuc",
+    "sourceFile": "Processing/Triggers.sql",
+    "relatedTables": ["HOPDONG"],
+    "execute": { "kind": "script", "file": "Processing/Tests/TRG04_HopDong_MotHieuLuc.sql", "transaction": true, "params": [] }
+  },
+  {
+    "id": "TRG05",
+    "type": "trigger",
+    "title": "Xóa khóa đào tạo kèm các lượt tham gia",
+    "description": "Trigger INSTEAD OF DELETE trên DAOTAO: khi xóa khóa đào tạo, xóa trước các bản ghi THAM_GIA_DAO_TAO của khóa đó rồi mới xóa khóa (tránh lỗi khóa ngoại). Testcase: tạo 2 khóa (1 khóa có 2 người tham gia), xóa cả hai đều thành công.",
+    "objectName": "dbo.TRG05_XoaDaoTao",
+    "sourceFile": "Processing/Triggers.sql",
+    "relatedTables": ["DAOTAO", "THAM_GIA_DAO_TAO"],
+    "execute": { "kind": "script", "file": "Processing/Tests/TRG05_XoaDaoTao.sql", "transaction": true, "params": [] }
+  },
+  {
+    "id": "FN01",
+    "type": "function",
+    "title": "Tổng số ngày nghỉ phép đã duyệt trong tháng",
+    "description": "Scalar function: nhập mã nhân viên, tháng, năm → tổng số ngày nghỉ của các đơn 'Đã duyệt' giao với tháng (đơn kéo dài qua nhiều tháng chỉ tính phần nằm trong tháng). Dùng trong SP07 tính lương.",
+    "objectName": "dbo.FN01_TongNgayNghi",
+    "sourceFile": "Processing/Functions.sql",
+    "relatedTables": ["DON_NGHI_PHEP"],
+    "execute": {
+      "kind": "scalar-function",
+      "name": "dbo.FN01_TongNgayNghi",
+      "params": [
+        { "name": "MaNV", "type": "Int", "label": "Mã nhân viên", "required": true, "default": 20 },
+        { "name": "Thang", "type": "Int", "label": "Tháng", "required": true, "default": 9 },
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 }
+      ]
+    }
+  },
+  {
+    "id": "FN02",
+    "type": "function",
+    "title": "Số công và tổng giờ tăng ca trong tháng",
+    "description": "Table function: nhập mã nhân viên, tháng, năm → bảng 1 dòng gồm SoCong (số ngày có đi làm: Đúng giờ / Đi muộn / Về sớm, không tính Vắng) và TongGioOT. Dùng trong SP07 tính lương.",
+    "objectName": "dbo.FN02_TongCongOT",
+    "sourceFile": "Processing/Functions.sql",
+    "relatedTables": [{ "table": "CHAM_CONG", "pageSize": 100 }],
+    "execute": {
+      "kind": "table-function",
+      "name": "dbo.FN02_TongCongOT",
+      "params": [
+        { "name": "MaNV", "type": "Int", "label": "Mã nhân viên", "required": true, "default": 7 },
+        { "name": "Thang", "type": "Int", "label": "Tháng", "required": true, "default": 9 },
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 }
+      ]
+    }
+  },
+  {
+    "id": "FN03",
+    "type": "function",
+    "title": "Tỷ lệ đậu của đợt tuyển dụng",
+    "description": "Scalar function: nhập mã đợt tuyển dụng → tỷ lệ (%) hồ sơ 'Đã tuyển' trên tổng hồ sơ ứng tuyển vào các vị trí của đợt. Đợt chưa có hồ sơ → NULL.",
+    "objectName": "dbo.FN03_TyLeDau",
+    "sourceFile": "Processing/Functions.sql",
+    "relatedTables": ["VI_TRI_TUYENDUNG", "UNG_TUYEN"],
+    "execute": {
+      "kind": "scalar-function",
+      "name": "dbo.FN03_TyLeDau",
+      "params": [
+        { "name": "MaDotTD", "type": "Int", "label": "Mã đợt tuyển dụng", "required": true, "default": 1 }
+      ]
+    }
+  },
+  {
+    "id": "CUR01",
+    "type": "cursor",
+    "title": "Tính hiệu suất KPI và xếp loại theo tháng (cursor)",
+    "description": "Procedure dùng cursor duyệt từng lần đánh giá trong tháng: tính HieuSuatKPI = KPIThucTe / KPIMucTieu × 100 cho từng KPI, kiểm tra tổng trọng số = 100 (sai → PRINT và bỏ qua), tính HieuSuatKPITong = Σ(HieuSuatKPI × TrongSo) / 100 và xếp loại (≥ 90 Xuất sắc, ≥ 80 Giỏi, ≥ 65 Khá, ≥ 50 Trung bình, còn lại Yếu). Chạy trước CUR02.",
+    "objectName": "dbo.SP06_TinhHieuSuatThang",
+    "sourceFile": "Processing/Cursors.sql",
+    "relatedTables": ["DANH_GIA", { "table": "DANH_GIA_CHI_TIET", "pageSize": 100 }],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP06_TinhHieuSuatThang",
+      "transaction": true,
+      "params": [
+        { "name": "Thang", "type": "Int", "label": "Tháng", "required": true, "default": 9 },
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 }
+      ]
+    }
+  },
+  {
+    "id": "CUR02",
+    "type": "cursor",
+    "title": "Tính lương tháng cho nhân viên đang làm (cursor)",
+    "description": "Procedure dùng cursor duyệt từng nhân viên đang làm có hợp đồng hiệu lực, gọi FN02 (số công, giờ OT) và FN01 (ngày nghỉ phép), lấy HieuSuatKPITong của tháng, cộng khen thưởng trong tháng rồi tính: LuongCoBan = LCB(HĐ) × (SoCong + NgayNghi) / CongTheoThang; LuongHieuSuat = LHS(HĐ) × HieuSuatKPITong / 100; PhuCap = PhuCap(HĐ) + giờ OT × LCB / CongTheoThang / 8 × 1.5; KhauTru = 10,5% LCB; LuongThucNhan = LuongCoBan + LuongHieuSuat + PhuCap + TienThuong − KhauTru. Ghi vào BANG_LUONG (đã có thì cập nhật, chưa có thì thêm).",
+    "objectName": "dbo.SP07_TinhLuongThang",
+    "sourceFile": "Processing/Cursors.sql",
+    "relatedTables": [{ "table": "BANG_LUONG", "pageSize": 100 }, "KHEN_THUONG"],
+    "execute": {
+      "kind": "procedure",
+      "name": "dbo.SP07_TinhLuongThang",
+      "transaction": true,
+      "params": [
+        { "name": "Thang", "type": "Int", "label": "Tháng", "required": true, "default": 9 },
+        { "name": "Nam", "type": "Int", "label": "Năm", "required": true, "default": 2026 },
+        { "name": "CongTheoThang", "type": "Decimal", "label": "Số công chuẩn của tháng", "required": true, "default": 22 }
+      ]
+    }
+  }
+]
