@@ -1,7 +1,7 @@
 // Export CSV một bảng trong whitelist – dữ liệu truy vấn trực tiếp từ SQL Server tại thời điểm bấm nút.
 // Tiện ích của Website, không thay thế phần Export (SQL) của nhóm.
 const { sql } = require('../config/database');
-const { getTable } = require('../config/tables');
+const { getTable, pkColumns } = require('../config/tables');
 const sqlService = require('./sql.service');
 
 const MAX_ROWS = 50000;
@@ -20,8 +20,9 @@ async function exportTableCsv(tableName, order = 'asc') {
   const table = getTable(tableName);
   if (!table) throw Object.assign(new Error(`Bảng "${tableName}" không nằm trong whitelist.`), { status: 400 });
   const direction = String(order).toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  const orderBy = pkColumns(table).map((c) => `${sqlService.quoteIdentifier(c)} ${direction}`).join(', ');
   const result = await sqlService.query(
-    `SELECT TOP (@limit) * FROM ${sqlService.quoteIdentifier(table.name)} ORDER BY ${sqlService.quoteIdentifier(table.pk)} ${direction}`,
+    `SELECT TOP (@limit) * FROM ${sqlService.quoteIdentifier(table.name)} ORDER BY ${orderBy}`,
     { limit: { type: sql.Int, value: MAX_ROWS + 1 } },
   );
   if (result.recordset.length > MAX_ROWS) {

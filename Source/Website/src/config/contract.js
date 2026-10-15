@@ -24,7 +24,14 @@ const COLUMNS = {
   UNG_TUYEN: [['MaUngTuyen', 'int'], ['MaUV', 'int'], ['MaViTri', 'int'], ['NgayUngTuyen', 'date'], ['VongPhongVan', 'int'], ['KetQua', 'nvarchar(30)'], ['TrangThai', 'nvarchar(30)']],
   DAOTAO: [['MaDT', 'int'], ['TenKhoaHoc', 'nvarchar(200)'], ['HinhThuc', 'nvarchar(30)'], ['NgayBatDau', 'date'], ['NgayKetThuc', 'date'], ['NoiDung', 'nvarchar(500)']],
   THAM_GIA_DAO_TAO: [['MaTG', 'int'], ['MaNV', 'int'], ['MaDT', 'int'], ['NgayThamGia', 'date'], ['KetQua', 'nvarchar(100)'], ['DanhGia', 'nvarchar(300)']],
-  DANH_GIA: [['MaDG', 'int'], ['MaNV', 'int'], ['KyDanhGia', 'nvarchar(50)'], ['NgayDanhGia', 'date'], ['Diem', 'decimal(5,2)'], ['XepLoai', 'nvarchar(30)'], ['NhanXet', 'nvarchar(500)']],
+  DANH_GIA: [
+    ['MaDG', 'int'], ['MaNV', 'int'], ['Thang', 'int'], ['Nam', 'int'], ['NgayDanhGia', 'date'],
+    ['HieuSuatKPITong', 'decimal(6,2)'], ['XepLoai', 'nvarchar(30)'], ['NhanXet', 'nvarchar(500)'],
+  ],
+  DANH_GIA_CHI_TIET: [
+    ['MaDG', 'int'], ['STT', 'int'], ['TenKPI', 'nvarchar(200)'], ['KPIMucTieu', 'decimal(18,2)'], ['KPIThucTe', 'decimal(18,2)'],
+    ['TrongSo', 'decimal(5,2)'], ['HieuSuatKPI', 'decimal(6,2)'],
+  ],
   KHEN_THUONG: [['MaKT', 'int'], ['MaNV', 'int'], ['NgayKT', 'date'], ['LyDo', 'nvarchar(300)'], ['HinhThuc', 'nvarchar(100)'], ['SoTien', 'decimal(18,2)']],
   CHAM_CONG: [['MaCC', 'int'], ['MaNV', 'int'], ['Ngay', 'date'], ['GioVao', 'time'], ['GioRa', 'time'], ['SoGioOT', 'decimal(5,2)'], ['TrangThai', 'nvarchar(30)']],
   DON_NGHI_PHEP: [['MaDon', 'int'], ['MaNV', 'int'], ['TuNgay', 'date'], ['DenNgay', 'date'], ['SoNgay', 'decimal(5,2)'], ['LyDo', 'nvarchar(300)'], ['TrangThai', 'nvarchar(30)']],
@@ -32,7 +39,8 @@ const COLUMNS = {
     ['MaLuong', 'int'], ['MaNV', 'int'], ['Thang', 'int'], ['Nam', 'int'], ['LuongCoBan', 'decimal(18,2)'], ['LuongHieuSuat', 'decimal(18,2)'],
     ['PhuCap', 'decimal(18,2)'], ['TienThuong', 'decimal(18,2)'], ['KhauTru', 'decimal(18,2)'], ['LuongThucNhan', 'decimal(18,2)'],
   ],
-  PHUC_LOI: [['MaPL', 'int'], ['MaNV', 'int'], ['TenPhucLoi', 'nvarchar(200)'], ['NgayBatDau', 'date'], ['NgayKetThuc', 'date'], ['GiaTri', 'decimal(18,2)'], ['TrangThai', 'nvarchar(30)']],
+  DS_PHUC_LOI: [['MaLoaiPL', 'int'], ['TenPhucLoi', 'nvarchar(200)'], ['ChiTiet', 'nvarchar(500)'], ['TrangThai', 'nvarchar(30)']],
+  PHUC_LOI: [['MaPL', 'int'], ['MaNV', 'int'], ['MaLoaiPL', 'int'], ['NgayBatDau', 'date'], ['NgayKetThuc', 'date'], ['GiaTri', 'decimal(18,2)']],
 };
 
 // [bảng, cột, bảng tham chiếu, cột tham chiếu] – Master Handoff §3.
@@ -48,11 +56,13 @@ const FOREIGN_KEYS = [
   ['THAM_GIA_DAO_TAO', 'MaNV', 'NHANVIEN', 'MaNV'],
   ['THAM_GIA_DAO_TAO', 'MaDT', 'DAOTAO', 'MaDT'],
   ['DANH_GIA', 'MaNV', 'NHANVIEN', 'MaNV'],
+  ['DANH_GIA_CHI_TIET', 'MaDG', 'DANH_GIA', 'MaDG'],
   ['KHEN_THUONG', 'MaNV', 'NHANVIEN', 'MaNV'],
   ['CHAM_CONG', 'MaNV', 'NHANVIEN', 'MaNV'],
   ['DON_NGHI_PHEP', 'MaNV', 'NHANVIEN', 'MaNV'],
   ['BANG_LUONG', 'MaNV', 'NHANVIEN', 'MaNV'],
   ['PHUC_LOI', 'MaNV', 'NHANVIEN', 'MaNV'],
+  ['PHUC_LOI', 'MaLoaiPL', 'DS_PHUC_LOI', 'MaLoaiPL'],
 ];
 
 // [bảng, [cột...]] – Master Handoff §4.
@@ -66,6 +76,8 @@ const UNIQUES = [
   ['BANG_LUONG', ['MaNV', 'Thang', 'Nam']],
   ['UNG_TUYEN', ['MaUV', 'MaViTri']],
   ['THAM_GIA_DAO_TAO', ['MaNV', 'MaDT']],
+  ['DANH_GIA', ['MaNV', 'Thang', 'Nam']],
+  ['DS_PHUC_LOI', ['TenPhucLoi']],
 ];
 
 // Miền giá trị đã chốt (Master Handoff §2.3 + quyết định nhóm).
@@ -76,16 +88,22 @@ const DOMAINS = [
   { table: 'DON_NGHI_PHEP', column: 'TrangThai', label: 'Trạng thái đơn nghỉ phép', values: ['Chờ duyệt', 'Đã duyệt', 'Từ chối'] },
   { table: 'UNG_TUYEN', column: 'TrangThai', label: 'Trạng thái ứng tuyển', values: ['Đang xử lý', 'Đã tuyển', 'Từ chối'] },
   { table: 'UNG_TUYEN', column: 'KetQua', label: 'Kết quả ứng tuyển', values: ['Chưa có kết quả', 'Đạt', 'Không đạt'] },
+  { table: 'DS_PHUC_LOI', column: 'TrangThai', label: 'Trạng thái loại phúc lợi', values: ['Đang áp dụng', 'Hết hiệu lực'] },
 ];
 
 // Quy tắc dữ liệu lưu sẵn: phần SQL nghiệp vụ của nhóm/Tuyến chịu trách nhiệm bảo đảm.
 // check-db chỉ ĐẾM số dòng lệch để cảnh báo, không sửa dữ liệu.
 const SALARY_RULE = 'LuongThucNhan = LuongCoBan + LuongHieuSuat + PhuCap + TienThuong - KhauTru';
+const KPI_RULE = {
+  detail: 'HieuSuatKPI = KPIThucTe / KPIMucTieu × 100',
+  total: 'HieuSuatKPITong = Σ(HieuSuatKPI × TrongSo) / 100',
+};
 
 // Quyết định thiết kế bổ sung (không đổi contract): ghi lại để check-db in ra khi đối chiếu.
 const OPEN_DECISIONS = [
   'PK dùng INT IDENTITY(1,1) (02_CreateTables.sql) – INSERT không truyền mã; dữ liệu mẫu dùng IDENTITY_INSERT.',
-  'Miền giá trị chưa chốt (chỉ dùng thống nhất trong dữ liệu mẫu, chưa có CHECK): CHAM_CONG.TrangThai, DOT_TUYENDUNG.TrangThai, PHUC_LOI.TrangThai, DAOTAO.HinhThuc, DANH_GIA.XepLoai, THAM_GIA_DAO_TAO.KetQua.',
+  'DANH_GIA_CHI_TIET: PK kép (MaDG, STT), không IDENTITY. HieuSuatKPI, HieuSuatKPITong, TrongSo tính theo %.',
+  'Miền giá trị chưa chốt (chỉ dùng thống nhất trong dữ liệu mẫu, chưa có CHECK): CHAM_CONG.TrangThai, DOT_TUYENDUNG.TrangThai, DAOTAO.HinhThuc, DANH_GIA.XepLoai, THAM_GIA_DAO_TAO.KetQua.',
 ];
 
-module.exports = { COLUMNS, FOREIGN_KEYS, UNIQUES, DOMAINS, SALARY_RULE, OPEN_DECISIONS };
+module.exports = { COLUMNS, FOREIGN_KEYS, UNIQUES, DOMAINS, SALARY_RULE, KPI_RULE, OPEN_DECISIONS };

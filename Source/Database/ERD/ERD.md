@@ -1,6 +1,6 @@
 # ERD – Hệ thống CSDL quản lý nhân sự (IE103 – Nhóm 7)
 
-Mô hình quan hệ của database `IE103_HRM_Nhom7`: 16 bảng, 16 khóa ngoại, đúng Database contract
+Mô hình quan hệ của database `IE103_HRM_Nhom7`: 18 bảng, 18 khóa ngoại, đúng Database contract
 của nhóm. Sinh tự động từ `Source/Website/src/config/contract.js`.
 
 - Ảnh dùng cho báo cáo: [`ERD.png`](ERD.png)
@@ -25,12 +25,14 @@ Ký hiệu: `PK` khóa chính · `FK` khóa ngoại · `UK` UNIQUE một cột �
 | VI_TRI_TUYENDUNG | UNG_TUYEN | `UNG_TUYEN.MaViTri` | Một vị trí nhận nhiều hồ sơ |
 | NHANVIEN | THAM_GIA_DAO_TAO | `THAM_GIA_DAO_TAO.MaNV` | Một nhân viên tham gia nhiều khóa (mỗi khóa một lần) |
 | DAOTAO | THAM_GIA_DAO_TAO | `THAM_GIA_DAO_TAO.MaDT` | Một khóa đào tạo có nhiều học viên |
-| NHANVIEN | DANH_GIA | `DANH_GIA.MaNV` | Một nhân viên được đánh giá nhiều kỳ |
+| NHANVIEN | DANH_GIA | `DANH_GIA.MaNV` | Một nhân viên được đánh giá mỗi tháng một lần |
+| DANH_GIA | DANH_GIA_CHI_TIET | `DANH_GIA_CHI_TIET.MaDG` | Một lần đánh giá gồm nhiều KPI thành phần (PK kép MaDG, STT) |
 | NHANVIEN | KHEN_THUONG | `KHEN_THUONG.MaNV` | Một nhân viên được khen thưởng nhiều lần |
 | NHANVIEN | CHAM_CONG | `CHAM_CONG.MaNV` | Mỗi ngày một bản ghi chấm công / nhân viên |
 | NHANVIEN | DON_NGHI_PHEP | `DON_NGHI_PHEP.MaNV` | Một nhân viên nộp nhiều đơn nghỉ phép |
 | NHANVIEN | BANG_LUONG | `BANG_LUONG.MaNV` | Mỗi tháng một bảng lương / nhân viên |
 | NHANVIEN | PHUC_LOI | `PHUC_LOI.MaNV` | Một nhân viên hưởng nhiều phúc lợi |
+| DS_PHUC_LOI | PHUC_LOI | `PHUC_LOI.MaLoaiPL` | Một loại phúc lợi được áp dụng cho nhiều nhân viên |
 
 `UNG_TUYEN` và `THAM_GIA_DAO_TAO` là bảng trung gian của hai quan hệ nhiều – nhiều
 (ỨNG VIÊN – VỊ TRÍ, NHÂN VIÊN – KHÓA ĐÀO TẠO), mang thêm thuộc tính của quan hệ (vòng phỏng vấn, kết quả…).
@@ -131,12 +133,22 @@ erDiagram
     }
     DANH_GIA {
         int MaDG PK
-        int MaNV FK
-        nvarchar_50 KyDanhGia
+        int MaNV FK "UNIQUE(MaNV, Thang, Nam)"
+        int Thang "UNIQUE(MaNV, Thang, Nam)"
+        int Nam "UNIQUE(MaNV, Thang, Nam)"
         date NgayDanhGia
-        decimal_5_2 Diem
+        decimal_6_2 HieuSuatKPITong
         nvarchar_30 XepLoai
         nvarchar_500 NhanXet
+    }
+    DANH_GIA_CHI_TIET {
+        int MaDG PK, FK
+        int STT PK
+        nvarchar_200 TenKPI
+        decimal_18_2 KPIMucTieu
+        decimal_18_2 KPIThucTe
+        decimal_5_2 TrongSo
+        decimal_6_2 HieuSuatKPI
     }
     KHEN_THUONG {
         int MaKT PK
@@ -176,14 +188,19 @@ erDiagram
         decimal_18_2 KhauTru
         decimal_18_2 LuongThucNhan
     }
+    DS_PHUC_LOI {
+        int MaLoaiPL PK
+        nvarchar_200 TenPhucLoi UK
+        nvarchar_500 ChiTiet
+        nvarchar_30 TrangThai
+    }
     PHUC_LOI {
         int MaPL PK
         int MaNV FK
-        nvarchar_200 TenPhucLoi
+        int MaLoaiPL FK
         date NgayBatDau
         date NgayKetThuc
         decimal_18_2 GiaTri
-        nvarchar_30 TrangThai
     }
     PHONGBAN ||--o{ NHANVIEN : "gồm"
     CHUCVU ||--o{ NHANVIEN : "đảm nhiệm"
@@ -196,10 +213,12 @@ erDiagram
     NHANVIEN ||--o{ THAM_GIA_DAO_TAO : "tham gia"
     DAOTAO ||--o{ THAM_GIA_DAO_TAO : "có học viên"
     NHANVIEN ||--o{ DANH_GIA : "được đánh giá"
+    DANH_GIA ||--o{ DANH_GIA_CHI_TIET : "gồm KPI"
     NHANVIEN ||--o{ KHEN_THUONG : "được khen thưởng"
     NHANVIEN ||--o{ CHAM_CONG : "chấm công"
     NHANVIEN ||--o{ DON_NGHI_PHEP : "nộp đơn"
     NHANVIEN ||--o{ BANG_LUONG : "nhận lương"
     NHANVIEN ||--o{ PHUC_LOI : "hưởng"
+    DS_PHUC_LOI ||--o{ PHUC_LOI : "được áp dụng"
 
 ```

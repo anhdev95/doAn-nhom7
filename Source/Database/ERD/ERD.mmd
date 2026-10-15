@@ -91,12 +91,22 @@ erDiagram
     }
     DANH_GIA {
         int MaDG PK
-        int MaNV FK
-        nvarchar_50 KyDanhGia
+        int MaNV FK "UNIQUE(MaNV, Thang, Nam)"
+        int Thang "UNIQUE(MaNV, Thang, Nam)"
+        int Nam "UNIQUE(MaNV, Thang, Nam)"
         date NgayDanhGia
-        decimal_5_2 Diem
+        decimal_6_2 HieuSuatKPITong
         nvarchar_30 XepLoai
         nvarchar_500 NhanXet
+    }
+    DANH_GIA_CHI_TIET {
+        int MaDG PK, FK
+        int STT PK
+        nvarchar_200 TenKPI
+        decimal_18_2 KPIMucTieu
+        decimal_18_2 KPIThucTe
+        decimal_5_2 TrongSo
+        decimal_6_2 HieuSuatKPI
     }
     KHEN_THUONG {
         int MaKT PK
@@ -136,14 +146,19 @@ erDiagram
         decimal_18_2 KhauTru
         decimal_18_2 LuongThucNhan
     }
+    DS_PHUC_LOI {
+        int MaLoaiPL PK
+        nvarchar_200 TenPhucLoi UK
+        nvarchar_500 ChiTiet
+        nvarchar_30 TrangThai
+    }
     PHUC_LOI {
         int MaPL PK
         int MaNV FK
-        nvarchar_200 TenPhucLoi
+        int MaLoaiPL FK
         date NgayBatDau
         date NgayKetThuc
         decimal_18_2 GiaTri
-        nvarchar_30 TrangThai
     }
     PHONGBAN ||--o{ NHANVIEN : "gồm"
     CHUCVU ||--o{ NHANVIEN : "đảm nhiệm"
@@ -156,8 +171,10 @@ erDiagram
     NHANVIEN ||--o{ THAM_GIA_DAO_TAO : "tham gia"
     DAOTAO ||--o{ THAM_GIA_DAO_TAO : "có học viên"
     NHANVIEN ||--o{ DANH_GIA : "được đánh giá"
+    DANH_GIA ||--o{ DANH_GIA_CHI_TIET : "gồm KPI"
     NHANVIEN ||--o{ KHEN_THUONG : "được khen thưởng"
     NHANVIEN ||--o{ CHAM_CONG : "chấm công"
     NHANVIEN ||--o{ DON_NGHI_PHEP : "nộp đơn"
     NHANVIEN ||--o{ BANG_LUONG : "nhận lương"
     NHANVIEN ||--o{ PHUC_LOI : "hưởng"
+    DS_PHUC_LOI ||--o{ PHUC_LOI : "được áp dụng"

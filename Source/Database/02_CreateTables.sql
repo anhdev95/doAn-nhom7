@@ -1,9 +1,10 @@
 ﻿/* =====================================================================
    IE103 – Nhóm 7 – Hệ thống CSDL quản lý nhân sự
-   02_CreateTables.sql – Tạo 16 bảng theo Database contract (Master Handoff §2)
+   02_CreateTables.sql – Tạo 18 bảng theo Database contract (Master Handoff §2)
    ---------------------------------------------------------------------
    - Tên bảng, tên cột, kiểu dữ liệu đúng contract.
    - PK: INT IDENTITY(1,1) – INSERT không cần truyền mã (dữ liệu mẫu dùng IDENTITY_INSERT).
+     Riêng DANH_GIA_CHI_TIET: PK kép (MaDG, STT), STT là số thứ tự KPI trong một lần đánh giá.
    - NULL/NOT NULL: cột bắt buộc theo nghiệp vụ là NOT NULL; cột contract ghi "nullable"
      (HOPDONG.NgayKetThuc, PHUC_LOI.NgayKetThuc, NHANVIEN.MaQuanLy) cho phép NULL.
    - Khóa ngoại, UNIQUE, CHECK, DEFAULT nằm ở 03_Constraints.sql.
@@ -16,7 +17,8 @@ GO
 
 IF EXISTS (SELECT 1 FROM sys.tables WHERE name IN (
     N'PHONGBAN', N'CHUCVU', N'NHANVIEN', N'HOPDONG', N'DOT_TUYENDUNG', N'VI_TRI_TUYENDUNG', N'UNGVIEN', N'UNG_TUYEN',
-    N'DAOTAO', N'THAM_GIA_DAO_TAO', N'DANH_GIA', N'KHEN_THUONG', N'CHAM_CONG', N'DON_NGHI_PHEP', N'BANG_LUONG', N'PHUC_LOI'))
+    N'DAOTAO', N'THAM_GIA_DAO_TAO', N'DANH_GIA', N'DANH_GIA_CHI_TIET', N'KHEN_THUONG', N'CHAM_CONG', N'DON_NGHI_PHEP',
+    N'BANG_LUONG', N'DS_PHUC_LOI', N'PHUC_LOI'))
 BEGIN
     RAISERROR(N'Database đã có bảng – giữ nguyên. Muốn tạo lại từ đầu: chạy 01_CreateDatabase.sql với @TaoLai = 1.', 16, 1);
     SET NOEXEC ON;
@@ -140,14 +142,26 @@ CREATE TABLE dbo.THAM_GIA_DAO_TAO (
 );
 
 CREATE TABLE dbo.DANH_GIA (
-    MaDG        INT IDENTITY(1, 1) NOT NULL,
-    MaNV        INT                NOT NULL,
-    KyDanhGia   NVARCHAR(50)       NOT NULL,
-    NgayDanhGia DATE               NOT NULL,
-    Diem        DECIMAL(5, 2)      NOT NULL,
-    XepLoai     NVARCHAR(30)       NOT NULL,
-    NhanXet     NVARCHAR(500)      NULL,
+    MaDG            INT IDENTITY(1, 1) NOT NULL,
+    MaNV            INT                NOT NULL,
+    Thang           INT                NOT NULL,
+    Nam             INT                NOT NULL,
+    NgayDanhGia     DATE               NOT NULL,
+    HieuSuatKPITong DECIMAL(6, 2)      NOT NULL,   -- % = Σ(HieuSuatKPI × TrongSo) / 100
+    XepLoai         NVARCHAR(30)       NOT NULL,
+    NhanXet         NVARCHAR(500)      NULL,
     CONSTRAINT PK_DANH_GIA PRIMARY KEY (MaDG)
+);
+
+CREATE TABLE dbo.DANH_GIA_CHI_TIET (
+    MaDG        INT                NOT NULL,
+    STT         INT                NOT NULL,
+    TenKPI      NVARCHAR(200)      NOT NULL,
+    KPIMucTieu  DECIMAL(18, 2)     NOT NULL,
+    KPIThucTe   DECIMAL(18, 2)     NOT NULL,
+    TrongSo     DECIMAL(5, 2)      NOT NULL,   -- %; tổng TrongSo của một lần đánh giá = 100
+    HieuSuatKPI DECIMAL(6, 2)      NOT NULL,   -- % = KPIThucTe / KPIMucTieu × 100
+    CONSTRAINT PK_DANH_GIA_CHI_TIET PRIMARY KEY (MaDG, STT)
 );
 
 /* ---------- Lương & đãi ngộ ---------- */
@@ -200,14 +214,21 @@ CREATE TABLE dbo.BANG_LUONG (
     CONSTRAINT PK_BANG_LUONG PRIMARY KEY (MaLuong)
 );
 
+CREATE TABLE dbo.DS_PHUC_LOI (
+    MaLoaiPL   INT IDENTITY(1, 1) NOT NULL,
+    TenPhucLoi NVARCHAR(200)      NOT NULL,
+    ChiTiet    NVARCHAR(500)      NULL,
+    TrangThai  NVARCHAR(30)       NOT NULL,
+    CONSTRAINT PK_DS_PHUC_LOI PRIMARY KEY (MaLoaiPL)
+);
+
 CREATE TABLE dbo.PHUC_LOI (
     MaPL        INT IDENTITY(1, 1) NOT NULL,
     MaNV        INT                NOT NULL,
-    TenPhucLoi  NVARCHAR(200)      NOT NULL,
+    MaLoaiPL    INT                NOT NULL,
     NgayBatDau  DATE               NOT NULL,
     NgayKetThuc DATE               NULL,
     GiaTri      DECIMAL(18, 2)     NOT NULL,
-    TrangThai   NVARCHAR(30)       NOT NULL,
     CONSTRAINT PK_PHUC_LOI PRIMARY KEY (MaPL)
 );
 GO
@@ -225,12 +246,14 @@ INSERT INTO @MoTa VALUES
  (N'UNG_TUYEN',        N'Mỗi lượt ứng tuyển là một ứng viên ứng tuyển một vị trí (mỗi cặp chỉ một lần), ghi vòng phỏng vấn, kết quả và trạng thái.'),
  (N'DAOTAO',           N'Mỗi khóa đào tạo có tên, hình thức, thời gian và nội dung.'),
  (N'THAM_GIA_DAO_TAO', N'Mỗi lượt tham gia là một nhân viên tham gia một khóa đào tạo (mỗi cặp chỉ một lần), ghi kết quả và đánh giá.'),
- (N'DANH_GIA',         N'Mỗi lần đánh giá ghi điểm (0–100), xếp loại và nhận xét của một nhân viên trong một kỳ.'),
+ (N'DANH_GIA',         N'Mỗi lần đánh giá là đánh giá KPI của một nhân viên trong một tháng (mỗi nhân viên một lần/tháng), ghi hiệu suất KPI tổng, xếp loại và nhận xét của quản lý.'),
+ (N'DANH_GIA_CHI_TIET', N'Mỗi dòng là một KPI thành phần (STT) của một lần đánh giá, có mục tiêu, kết quả thực tế, trọng số và hiệu suất = thực tế / mục tiêu.'),
  (N'KHEN_THUONG',      N'Mỗi lần khen thưởng ghi ngày, lý do, hình thức và số tiền thưởng của một nhân viên.'),
  (N'CHAM_CONG',        N'Mỗi bản ghi chấm công là giờ vào/ra, số giờ tăng ca và trạng thái của một nhân viên trong một ngày (mỗi ngày một bản ghi).'),
  (N'DON_NGHI_PHEP',    N'Mỗi đơn nghỉ phép của một nhân viên có khoảng thời gian, số ngày nghỉ, lý do và trạng thái duyệt.'),
  (N'BANG_LUONG',       N'Mỗi bảng lương là lương tháng của một nhân viên (mỗi nhân viên một bảng/tháng): LuongThucNhan = LuongCoBan + LuongHieuSuat + PhuCap + TienThuong - KhauTru.'),
- (N'PHUC_LOI',         N'Mỗi phúc lợi của một nhân viên có tên, thời gian áp dụng, giá trị và trạng thái.');
+ (N'DS_PHUC_LOI',      N'Mỗi loại phúc lợi có mã, tên duy nhất, mô tả chính sách và trạng thái (Đang áp dụng / Hết hiệu lực).'),
+ (N'PHUC_LOI',         N'Mỗi bản ghi là một nhân viên hưởng một loại phúc lợi trong một khoảng thời gian, với giá trị được hưởng.');
 
 DECLARE @bang SYSNAME, @tantu NVARCHAR(400);
 WHILE EXISTS (SELECT 1 FROM @MoTa)
@@ -242,7 +265,7 @@ BEGIN
 END
 GO
 
--- Kiểm tra: 16 bảng, số cột, tân từ
+-- Kiểm tra: 18 bảng, số cột, tân từ
 SELECT t.name AS Bang,
        (SELECT COUNT(*) FROM sys.columns c WHERE c.object_id = t.object_id) AS SoCot,
        CAST(ep.value AS NVARCHAR(400)) AS TanTu

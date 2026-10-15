@@ -118,8 +118,8 @@ async function checkDatabase(validCases) {
   const tables = await sqlService.countAllTables();
   const existing = new Set(tables.filter((t) => t.exists).map((t) => t.name));
   const missingTables = tables.filter((t) => !t.exists).map((t) => t.name);
-  if (missingTables.length) out('warn', `Chưa có ${missingTables.length}/16 bảng contract: ${missingTables.join(', ')}.`);
-  else out('pass', 'Đủ 16 bảng contract.');
+  if (missingTables.length) out('warn', `Chưa có ${missingTables.length}/${tables.length} bảng contract: ${missingTables.join(', ')}.`);
+  else out('pass', `Đủ ${tables.length} bảng contract.`);
 
   await checkSecurityDb();
 

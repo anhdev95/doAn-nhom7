@@ -35,9 +35,9 @@ Security/
 | Bảng | HR_ROLE | ACCOUNTING_ROLE | MANAGER_ROLE |
 |---|---|---|---|
 | NHANVIEN, HOPDONG | SELECT, INSERT, UPDATE | SELECT · **DENY** INSERT/UPDATE/DELETE | SELECT · **DENY** INSERT/UPDATE/DELETE |
-| PHONGBAN, CHUCVU, CHAM_CONG, KHEN_THUONG, PHUC_LOI | SELECT, INSERT, UPDATE | SELECT | SELECT |
+| PHONGBAN, CHUCVU, CHAM_CONG, KHEN_THUONG, DS_PHUC_LOI, PHUC_LOI | SELECT, INSERT, UPDATE | SELECT | SELECT |
 | DON_NGHI_PHEP | SELECT, INSERT, UPDATE | SELECT | SELECT · UPDATE **chỉ cột TrangThai** (duyệt đơn) |
-| DANH_GIA | SELECT, INSERT, UPDATE | – | SELECT, INSERT, UPDATE |
+| DANH_GIA, DANH_GIA_CHI_TIET | SELECT, INSERT, UPDATE | – | SELECT, INSERT, UPDATE |
 | DAOTAO, THAM_GIA_DAO_TAO | SELECT, INSERT, UPDATE | – | SELECT |
 | DOT_TUYENDUNG, VI_TRI_TUYENDUNG, UNGVIEN, UNG_TUYEN | SELECT, INSERT, UPDATE | **DENY SELECT** | SELECT |
 | BANG_LUONG | SELECT · **DENY** INSERT/UPDATE/DELETE | SELECT, INSERT, UPDATE | SELECT · **DENY** INSERT/UPDATE/DELETE |
@@ -56,7 +56,7 @@ Quyền EXECUTE trên procedure/function của Tuyến: cấp theo từng object
 | 3 | Import | Copy `cham_cong_import.csv` lên máy SQL Server, sửa `@FileImport`, chạy `01_Import_ChamCong.sql` | Số dòng trước/sau, dòng bị loại kèm lý do, SELECT dòng mới |
 | 4 | Export | `02_Export.sql` (Save Results As…) hoặc `Export_bcp.cmd` | File xuất có số dòng = `SoDongXuat` |
 | 5 | Backup | `01_Backup.sql` | Đường dẫn file `.bak`, VERIFYONLY hợp lệ, bản ghi trong msdb |
-| 6 | Restore | `02_DemoThayDoiDuLieu.sql` → `03_Restore_KiemTra.sql` | Dòng PHONGBAN khác nhau giữa DB đang chạy và bản restore; số dòng 16 bảng khớp |
+| 6 | Restore | `02_DemoThayDoiDuLieu.sql` → `03_Restore_KiemTra.sql` | Dòng PHONGBAN khác nhau giữa DB đang chạy và bản restore; số dòng 18 bảng khớp |
 | 6b | Restore ghi đè (tuỳ chọn) | `04_Restore_GhiDe.sql` với `@XacNhanGhiDe = 1` | Dữ liệu về lại lúc backup; Website tự kết nối lại |
 
 ## Lưu ý theo máy demo

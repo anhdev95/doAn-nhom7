@@ -1,0 +1,42 @@
+[
+  {
+    "id": "R01",
+    "title": "Cơ cấu nhân sự",
+    "description": "Công ty có bao nhiêu nhân viên và phân bổ ra sao? Thẻ số tổng nhân viên theo trạng thái (Đang làm / Tạm nghỉ / Nghỉ việc), số nhân viên theo phòng ban × trạng thái, và cơ cấu chức vụ × giới tính của nhân viên còn làm việc.",
+    "type": "image",
+    "src": "R01_CoCauNhanSu.png",
+    "dataSource": "NHANVIEN, PHONGBAN, CHUCVU"
+  },
+  {
+    "id": "R02",
+    "title": "Chi phí lương",
+    "description": "Mỗi tháng công ty chi bao nhiêu cho lương và phòng ban nào chi nhiều nhất? Tổng quan chi lương 07–09/2026, cơ cấu lương theo tháng (lương cơ bản, lương hiệu suất, phụ cấp, tiền thưởng) và tổng lương thực nhận theo phòng ban.",
+    "type": "image",
+    "src": "R02_ChiPhiLuong.png",
+    "dataSource": "BANG_LUONG, NHANVIEN, PHONGBAN"
+  },
+  {
+    "id": "R03",
+    "title": "Hiệu suất KPI",
+    "description": "Nhân viên hoàn thành KPI tốt đến đâu? Phân bố xếp loại theo kỳ đánh giá 12/2025 và 09/2026, hiệu suất KPI trung bình theo phòng ban, và xếp hạng nhân viên kỳ gần nhất theo HieuSuatKPITong.",
+    "type": "image",
+    "src": "R03_HieuSuatKPI.png",
+    "dataSource": "DANH_GIA, DANH_GIA_CHI_TIET, NHANVIEN, PHONGBAN"
+  },
+  {
+    "id": "R04",
+    "title": "Chuyên cần & nghỉ phép",
+    "description": "Kỷ luật giờ giấc và tình hình nghỉ phép thế nào? Tỷ lệ Đúng giờ / Đi muộn / Về sớm / Vắng theo phòng ban, tổng giờ tăng ca theo nhân viên, và số đơn nghỉ phép theo trạng thái duyệt.",
+    "type": "image",
+    "src": "R04_ChuyenCanNghiPhep.png",
+    "dataSource": "CHAM_CONG, DON_NGHI_PHEP, NHANVIEN, PHONGBAN"
+  },
+  {
+    "id": "R05",
+    "title": "Hiệu quả tuyển dụng",
+    "description": "Tuyển dụng tốn bao nhiêu và đạt kết quả gì? Phễu tuyển dụng theo đợt (nộp hồ sơ → phỏng vấn → đạt → đã tuyển), chi phí từng đợt và chi phí trên mỗi người được tuyển, kết quả và tỷ lệ đậu theo vị trí.",
+    "type": "image",
+    "src": "R05_HieuQuaTuyenDung.png",
+    "dataSource": "DOT_TUYENDUNG, VI_TRI_TUYENDUNG, UNG_TUYEN, PHONGBAN"
+  }
+]

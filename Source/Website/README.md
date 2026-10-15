@@ -14,8 +14,8 @@ Browser  →  Node.js + Express  →  mssql  →  Microsoft SQL Server
 
 | URL | Trang | Nội dung |
 |---|---|---|
-| `/` | Dashboard | Trạng thái kết nối, server, SQL version; số nhân viên/phòng ban/ứng viên/khóa đào tạo; số dòng 16 bảng (bảng thiếu = **Missing**); phân bố trạng thái theo miền giá trị đã chốt; tiến độ tích hợp Processing/Reports |
-| `/tables` | Database Tables | Xem 16 bảng contract (whitelist), phân trang, số dòng/trang, sắp xếp PK tăng/giảm, NULL hiển thị rõ, **Export CSV** |
+| `/` | Dashboard | Trạng thái kết nối, server, SQL version; số nhân viên/phòng ban/ứng viên/khóa đào tạo; số dòng 18 bảng (bảng thiếu = **Missing**); phân bố trạng thái theo miền giá trị đã chốt; tiến độ tích hợp Processing/Reports |
+| `/tables` | Database Tables | Xem 18 bảng contract (whitelist), phân trang, số dòng/trang, sắp xếp PK tăng/giảm, NULL hiển thị rõ, **Export CSV** |
 | `/processing` | Processing | 15 case (5 SP, 5 Trigger, 3 Function, 2 Cursor) theo B1 Bài toán → B2 SQL (definition đọc từ SQL Server) → B3 dữ liệu trước → B4 Execute (ROLLBACK/COMMIT) → B5 output, PRINT, lỗi, dữ liệu sau (tô màu thay đổi) |
 | `/reports` | Reports | 5 report (ảnh/link/embed) theo `Source/Reports/reports.manifest.json` |
 | `/security` | Security | Authentication (test đăng nhập), Authorization (role, GRANT/DENY, permission matrix), Import (so sánh trước/sau), Export, Backup/Restore (lịch sử msdb) |
@@ -62,13 +62,13 @@ PORT=3000
 - `DB_SERVER`: tên máy/IP. Named instance (`.\SQLEXPRESS`) → dùng `DB_SERVER=localhost` + `DB_PORT` cố định của instance.
 - SQL Server local: `DB_ENCRYPT=false`, `DB_TRUST_SERVER_CERTIFICATE=true`. Azure SQL: `DB_ENCRYPT=true`.
 - `.env` nằm trong `.gitignore` – **không commit, không gửi password qua chat**. Website không trả credential về trình duyệt và không ghi log password.
-- Login `hrm_web` được tạo bởi `Source/Database/Security/Authentication.sql` và cấp quyền ở `Authorization.sql` (đọc/ghi 16 bảng, EXECUTE, VIEW DEFINITION, đọc lịch sử backup/restore trong msdb). Trước khi chạy 2 script đó có thể tạm dùng `sa`. Login bị DENY sẽ không “thấy” bảng/object → website báo **Missing**.
+- Login `hrm_web` được tạo bởi `Source/Database/Security/Authentication.sql` và cấp quyền ở `Authorization.sql` (đọc/ghi 18 bảng, EXECUTE, VIEW DEFINITION, đọc lịch sử backup/restore trong msdb). Trước khi chạy 2 script đó có thể tạm dùng `sa`. Login bị DENY sẽ không “thấy” bảng/object → website báo **Missing**.
 
 ## 5. Các lệnh
 
 | Lệnh | Mục đích |
 |---|---|
-| `npm run check-db` | Kết nối SQL Server; in server/version/login; số dòng 16 bảng; **đối chiếu schema với Database contract** (cột, kiểu, PK, FK, UNIQUE), miền giá trị trạng thái, quy tắc `LuongThucNhan`. Exit ≠ 0 nếu có FAIL |
+| `npm run check-db` | Kết nối SQL Server; in server/version/login; số dòng 18 bảng; **đối chiếu schema với Database contract** (cột, kiểu, PK, FK, UNIQUE), miền giá trị trạng thái, quy tắc `LuongThucNhan` và KPI (`HieuSuatKPI`, `HieuSuatKPITong`, tổng `TrongSo` = 100). Exit ≠ 0 nếu có FAIL |
 | `npm run validate-integration` | Kiểm tra package Processing/Reports của Tuyến + script Security; nếu kết nối được DB thì kiểm tra object tồn tại, đúng loại, tham số khớp, bảng liên quan tồn tại. In `[PASS]/[WARN]/[FAIL]`, exit ≠ 0 nếu có FAIL. Tuỳ chọn `-- --no-db`, `-- --allow-pending` |
 | `npm start` | Chạy website (mặc định `http://localhost:3000`) |
 | `npm run dev` | Chạy và tự restart khi sửa code |
@@ -89,7 +89,7 @@ npm start
 ```text
 Source/
 ├── Database/
-│   ├── 01_CreateDatabase.sql … 04_SeedData.sql   ← tạo DB, 16 bảng, ràng buộc, dữ liệu mẫu
+│   ├── 01_CreateDatabase.sql … 04_SeedData.sql   ← tạo DB, 18 bảng, ràng buộc, dữ liệu mẫu
 │   ├── ChayTatCa.cmd                             ← chạy 01→04 + Security bằng sqlcmd (Windows)
 │   ├── ERD/                                      ← ERD.png, ERD.mmd, ERD.md
 │   ├── Processing/                               ← Xử lý thông tin (SP/Trigger/Function/Cursor)
@@ -150,7 +150,7 @@ Website **không** có nút tạo login/GRANT/backup/restore: các thao tác đ�
 | Gợi ý “Login đúng nhưng database chưa tồn tại” | Chưa tạo DB / sai `DB_NAME` | Chạy `Source/Database/01_CreateDatabase.sql` → `02` → `03` → `04` |
 | Gợi ý “Login đúng nhưng chưa có user trong database” | Login chưa được map vào DB | Tạo user trong DB cho login (script Authentication của nhóm) |
 | `self signed certificate` / lỗi SSL/TLS | Driver mã hóa nhưng server dùng certificate tự ký | `DB_TRUST_SERVER_CERTIFICATE=true` (local) hoặc `DB_ENCRYPT=false` |
-| Dashboard/Tables báo **Missing** bảng, lỗi `Invalid object name` (208) | Chưa chạy script tạo bảng, hoặc login website bị DENY trên bảng đó | Chạy `02_CreateTables.sql`, `03_Constraints.sql`; dùng login đọc được đủ 16 bảng |
+| Dashboard/Tables báo **Missing** bảng, lỗi `Invalid object name` (208) | Chưa chạy script tạo bảng, hoặc login website bị DENY trên bảng đó | Chạy `02_CreateTables.sql`, `03_Constraints.sql`; dùng login đọc được đủ 18 bảng |
 | `The SELECT permission was denied` (229) – HTTP 403 | Login website thiếu quyền | Cấp quyền đọc cho login website; login hạn chế chỉ dùng để demo ở trang Security |
 | `npm run check-db` báo FAIL contract | Schema thật lệch Database contract | Đối chiếu từng mục FAIL với `Source/Database/02_CreateTables.sql`, `03_Constraints.sql` và ERD (`Source/Database/ERD/`) |
 | Processing **Pending** | Chưa có `processing.manifest.json` / case chưa khai báo | Chưa có package Xử lý thông tin (mục 7) |
@@ -166,7 +166,7 @@ Website **không** có nút tạo login/GRANT/backup/restore: các thao tác đ�
 |---|---|---|
 | GET | `/api/health` | Trạng thái kết nối (luôn 200, kèm lỗi + gợi ý nếu mất kết nối) |
 | GET | `/api/dashboard` | Số liệu dashboard, phân bố trạng thái, tiến độ tích hợp |
-| GET | `/api/tables` | Danh sách 16 bảng whitelist |
+| GET | `/api/tables` | Danh sách 18 bảng whitelist |
 | GET | `/api/tables/:table?page=&pageSize=&order=asc\|desc` | Dữ liệu một bảng (400 nếu ngoài whitelist, 404 nếu chưa tạo, 403 nếu thiếu quyền) |
 | GET | `/api/tables/:table/export.csv?order=` | Export CSV toàn bảng (tối đa 50.000 dòng) |
 | GET | `/api/processing` | 15 case + trạng thái manifest/DB |
@@ -180,7 +180,7 @@ Website **không** có nút tạo login/GRANT/backup/restore: các thao tác đ�
 ## 12. Nguyên tắc bảo mật trong code
 
 - Connection pool dùng chung, tự kết nối lại (`src/config/database.js`).
-- Input từ client luôn qua parameterized query; tên bảng chỉ từ whitelist 16 bảng; tên object/tham số chỉ từ manifest phía server và được kiểm tra định dạng. **Không có endpoint nhận SQL tùy ý.**
+- Input từ client luôn qua parameterized query; tên bảng chỉ từ whitelist 18 bảng; tên object/tham số chỉ từ manifest phía server và được kiểm tra định dạng. **Không có endpoint nhận SQL tùy ý.**
 - File SQL/ảnh chỉ được đọc bên trong `Source/Database` và `Source/Reports` (chặn `../`); ảnh SVG bị từ chối.
 - Processing chạy trong transaction; mặc định **ROLLBACK** sau khi đọc dữ liệu “sau”.
 - Header CSP/nosniff; iframe report dùng `sandbox`; CSV chống công thức Excel (`=`, `+`, `-`, `@`).

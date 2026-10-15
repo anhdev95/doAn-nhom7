@@ -1,7 +1,7 @@
 // Lớp truy cập SQL Server dùng chung: chạy query có tham số, đọc bảng trong whitelist,
 // đọc metadata object và chuẩn hóa kết quả để trả về JSON.
 const { sql, getPool } = require('../config/database');
-const { TABLES, getTable } = require('../config/tables');
+const { TABLES, getTable, pkColumns } = require('../config/tables');
 
 const SAFE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SAFE_OBJECT_NAME = /^([A-Za-z_][A-Za-z0-9_]*\.)?[A-Za-z_][A-Za-z0-9_]*$/;
@@ -91,12 +91,12 @@ async function readTable(tableName, { page = 1, pageSize = 50, order = 'asc' } =
   const size = Math.min(Math.max(parseInt(pageSize, 10) || 50, 1), 500);
   const current = Math.max(parseInt(page, 10) || 1, 1);
   const t = quoteIdentifier(table.name);
-  const pk = quoteIdentifier(table.pk);
   const direction = String(order).toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  const orderBy = pkColumns(table).map((c) => `${quoteIdentifier(c)} ${direction}`).join(', ');
 
   const result = await query(
     `SELECT COUNT_BIG(*) AS total FROM ${t};
-     SELECT * FROM ${t} ORDER BY ${pk} ${direction} OFFSET @offset ROWS FETCH NEXT @size ROWS ONLY;`,
+     SELECT * FROM ${t} ORDER BY ${orderBy} OFFSET @offset ROWS FETCH NEXT @size ROWS ONLY;`,
     { offset: { type: sql.Int, value: (current - 1) * size }, size: { type: sql.Int, value: size } },
     runner,
   );

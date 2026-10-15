@@ -7,7 +7,8 @@
      - Mỗi nhân viên còn làm việc có đúng 1 hợp đồng 'Hiệu lực'; có lịch sử 'Hết hạn', 'Chấm dứt'.
      - Tuyển dụng: ứng viên Đạt/Không đạt/Chưa có kết quả; số 'Đã tuyển' ≤ SoLuong của vị trí;
        2 ứng viên trúng tuyển đã trở thành nhân viên (NV 21, 22).
-     - Đào tạo/đánh giá chỉ cho nhân viên đang làm tại thời điểm đó; điểm 0–100, nhiều mức xếp loại.
+     - Đào tạo/đánh giá chỉ cho nhân viên đang làm tại thời điểm đó; đánh giá KPI theo tháng
+       (3 KPI/lần, trọng số 50/30/20), đủ 5 mức xếp loại.
      - Chấm công 01/09–09/10/2026 (thứ 2–6, trừ nghỉ lễ 01–02/09 và ngày nghỉ phép đã duyệt):
        có OT / không OT, đi muộn, về sớm, vắng.
      - Đơn nghỉ phép: Chờ duyệt / Đã duyệt / Từ chối; đơn đã duyệt không trùng thời gian.
@@ -15,7 +16,7 @@
          KhauTru = 10,5% LuongCoBan (BHXH 8% + BHYT 1,5% + BHTN 1%)
          LuongThucNhan = LuongCoBan + LuongHieuSuat + PhuCap + TienThuong - KhauTru
        Tháng 10/2026 để trống cho phần xử lý lương (Procedure/Trigger) demo.
-   Giá trị trạng thái ngoài 6 miền đã chốt (CHAM_CONG, DOT_TUYENDUNG, PHUC_LOI, DAOTAO.HinhThuc,
+   Giá trị trạng thái ngoài 7 miền đã chốt (CHAM_CONG, DOT_TUYENDUNG, DAOTAO.HinhThuc,
    DANH_GIA.XepLoai, THAM_GIA_DAO_TAO.KetQua) là đề xuất – xem Source/Database/README.md.
    Toàn bộ chạy trong 1 transaction: lỗi ở bất kỳ bước nào → không ghi gì.
    Chạy sau 03_Constraints.sql, trên database chưa có dữ liệu.
@@ -95,7 +96,8 @@ INSERT INTO dbo.NHANVIEN (MaNV, HoTen, NgaySinh, GioiTinh, CCCD, Email, SoDienTh
 SET IDENTITY_INSERT dbo.NHANVIEN OFF;
 
 /* ---------------------------------------------------------------------
-   4. HOPDONG (34) – mỗi nhân viên còn làm việc có đúng 1 hợp đồng 'Hiệu lực'
+   4. HOPDONG (34) – mỗi nhân viên còn làm việc có đúng 1 hợp đồng 'Hiệu lực';
+      5 hợp đồng hiệu lực (MaHD 11, 13, 28, 29, 31) kết thúc 31/10/2026 – dùng cho demo hợp đồng sắp hết hạn
    --------------------------------------------------------------------- */
 SET IDENTITY_INSERT dbo.HOPDONG ON;
 INSERT INTO dbo.HOPDONG (MaHD, MaNV, LoaiHD, NgayBatDau, NgayKetThuc, LuongCoBan, TrangThai, LuongHieuSuat, PhuCap) VALUES
@@ -109,9 +111,9 @@ INSERT INTO dbo.HOPDONG (MaHD, MaNV, LoaiHD, NgayBatDau, NgayKetThuc, LuongCoBan
  ( 8,  7, N'Xác định thời hạn',       '2019-05-06', '2022-05-05', 14000000, N'Hết hạn',  1000000, 1000000),
  ( 9,  7, N'Không xác định thời hạn', '2022-05-06', NULL,         18000000, N'Hiệu lực', 2000000, 1500000),
  (10,  8, N'Xác định thời hạn',       '2021-09-01', '2024-08-31', 10000000, N'Hết hạn',   500000,  800000),
- (11,  8, N'Xác định thời hạn',       '2024-09-01', '2027-08-31', 12000000, N'Hiệu lực', 1000000,  800000),
+ (11,  8, N'Xác định thời hạn',       '2024-09-01', '2026-10-31', 12000000, N'Hiệu lực', 1000000,  800000),
  (12,  9, N'Không xác định thời hạn', '2019-11-11', NULL,         14000000, N'Hiệu lực', 1500000, 1000000),
- (13, 10, N'Xác định thời hạn',       '2022-01-10', '2027-01-09', 13000000, N'Hiệu lực', 1000000,  800000),
+ (13, 10, N'Xác định thời hạn',       '2022-01-10', '2026-10-31', 13000000, N'Hiệu lực', 1000000,  800000),
  (14, 11, N'Không xác định thời hạn', '2018-10-01', NULL,         22000000, N'Hiệu lực', 3000000, 2000000),
  (15, 12, N'Xác định thời hạn',       '2020-07-01', '2023-06-30', 10000000, N'Hết hạn',  1000000,  800000),
  (16, 12, N'Không xác định thời hạn', '2023-07-01', NULL,         12500000, N'Hiệu lực', 2000000,  800000),
@@ -126,10 +128,10 @@ INSERT INTO dbo.HOPDONG (MaHD, MaNV, LoaiHD, NgayBatDau, NgayKetThuc, LuongCoBan
  (25, 18, N'Không xác định thời hạn', '2020-11-02', NULL,         17000000, N'Hiệu lực', 2000000, 1200000),
  (26, 19, N'Xác định thời hạn',       '2023-09-18', '2025-09-17', 10000000, N'Hết hạn',   800000,  800000),
  (27, 19, N'Xác định thời hạn',       '2025-09-18', '2025-12-31', 10500000, N'Chấm dứt',  800000,  800000),
- (28, 20, N'Xác định thời hạn',       '2024-02-19', '2027-02-18', 11000000, N'Hiệu lực',  800000,  800000),
- (29, 21, N'Thử việc',                '2026-07-01', '2026-12-31',  5000000, N'Hiệu lực',        0,  500000),
+ (28, 20, N'Xác định thời hạn',       '2024-02-19', '2026-10-31', 11000000, N'Hiệu lực',  800000,  800000),
+ (29, 21, N'Thử việc',                '2026-07-01', '2026-10-31',  5000000, N'Hiệu lực',        0,  500000),
  (30, 22, N'Thử việc',                '2025-03-03', '2025-05-02',  8000000, N'Hết hạn',         0,  500000),
- (31, 22, N'Xác định thời hạn',       '2025-05-03', '2028-05-02', 11000000, N'Hiệu lực', 1000000,  800000),
+ (31, 22, N'Xác định thời hạn',       '2025-05-03', '2026-10-31', 11000000, N'Hiệu lực', 1000000,  800000),
  (32, 23, N'Xác định thời hạn',       '2025-09-15', '2026-09-14', 10000000, N'Hết hạn',   800000,  800000),
  (33, 23, N'Xác định thời hạn',       '2026-09-15', '2028-09-14', 11500000, N'Hiệu lực', 1000000,  800000),
  (34, 24, N'Không xác định thời hạn', '2015-03-01', '2024-12-31', 16000000, N'Chấm dứt', 1500000, 1000000);
@@ -254,50 +256,98 @@ INSERT INTO dbo.THAM_GIA_DAO_TAO (MaNV, MaDT, NgayThamGia, KetQua, DanhGia) VALU
  (21, 6, '2026-10-05', N'Đang học',         NULL);
 
 /* ---------------------------------------------------------------------
-   11. DANH_GIA (34) – XepLoai theo điểm:
-       ≥ 90 Xuất sắc · ≥ 80 Giỏi · ≥ 65 Khá · ≥ 50 Trung bình · < 50 Yếu
+   11. DANH_GIA (34) + DANH_GIA_CHI_TIET (102) – đánh giá KPI theo tháng (12/2025 và 09/2026)
+       Mỗi lần đánh giá có 3 KPI theo phòng ban của nhân viên, trọng số 50 / 30 / 20 (%):
+         HieuSuatKPI     = KPIThucTe / KPIMucTieu × 100 (%)
+         HieuSuatKPITong = Σ(HieuSuatKPI × TrongSo) / 100 (%)
+       XepLoai theo HieuSuatKPITong: ≥ 90 Xuất sắc · ≥ 80 Giỏi · ≥ 65 Khá · ≥ 50 Trung bình · < 50 Yếu
+       KPIThucTe sinh từ hiệu suất dự kiến của nhân viên (KPI 1: +4, KPI 2 và 3: −4 điểm %)
+       để tổng có trọng số xấp xỉ hiệu suất dự kiến; mọi chỉ số được tính lại từ giá trị đã lưu.
    --------------------------------------------------------------------- */
-INSERT INTO dbo.DANH_GIA (MaNV, KyDanhGia, NgayDanhGia, Diem, XepLoai, NhanXet)
-SELECT d.MaNV, d.Ky, d.Ngay, d.Diem,
-       CASE WHEN d.Diem >= 90 THEN N'Xuất sắc' WHEN d.Diem >= 80 THEN N'Giỏi' WHEN d.Diem >= 65 THEN N'Khá'
-            WHEN d.Diem >= 50 THEN N'Trung bình' ELSE N'Yếu' END,
-       d.NhanXet
-FROM (VALUES
- ( 1, N'Năm 2025', CAST('2025-12-20' AS DATE), CAST(92.00 AS DECIMAL(5, 2)), N'Hoàn thành vượt kế hoạch doanh thu năm.'),
- ( 2, N'Năm 2025', '2025-12-20', 88.00, N'Tổ chức tuyển dụng đúng tiến độ.'),
- ( 3, N'Năm 2025', '2025-12-20', 90.50, N'Quyết toán năm chính xác, đúng hạn.'),
- ( 4, N'Năm 2025', '2025-12-20', 85.00, NULL),
- ( 5, N'Năm 2025', '2025-12-20', 93.00, N'Dẫn dắt dự án chuyển đổi hệ thống thành công.'),
- ( 6, N'Năm 2025', '2025-12-20', 81.00, NULL),
- ( 7, N'Năm 2025', '2025-12-20', 86.00, NULL),
- ( 8, N'Năm 2025', '2025-12-20', 72.00, N'Cần chủ động hơn trong công việc.'),
- ( 9, N'Năm 2025', '2025-12-20', 78.50, NULL),
- (10, N'Năm 2025', '2025-12-20', 64.00, N'Còn chậm tiến độ báo cáo tháng.'),
- (11, N'Năm 2025', '2025-12-20', 83.00, NULL),
- (12, N'Năm 2025', '2025-12-20', 76.00, NULL),
- (14, N'Năm 2025', '2025-12-20', 89.00, NULL),
- (15, N'Năm 2025', '2025-12-20', 91.00, N'Đóng góp lớn cho dự án nội bộ.'),
- (16, N'Năm 2025', '2025-12-20', 84.00, NULL),
- (17, N'Năm 2025', '2025-12-20', 68.00, NULL),
- (18, N'Năm 2025', '2025-12-20', 80.00, NULL),
- (19, N'Năm 2025', '2025-12-20', 45.00, N'Không đạt chỉ tiêu, đã xin nghỉ việc cuối năm.'),
- (20, N'Năm 2025', '2025-12-20', 70.00, NULL),
- (22, N'Năm 2025', '2025-12-20', 74.00, N'Thích nghi nhanh với công việc.'),
- (23, N'Năm 2025', '2025-12-20', 58.00, N'Mới vào làm, cần thêm thời gian.'),
- ( 7, N'Quý 3/2026', '2026-09-28', 88.00, NULL),
- ( 8, N'Quý 3/2026', '2026-09-28', 75.00, N'Có tiến bộ so với năm trước.'),
- ( 9, N'Quý 3/2026', '2026-09-28', 81.00, NULL),
- (11, N'Quý 3/2026', '2026-09-28', 86.00, NULL),
- (12, N'Quý 3/2026', '2026-09-28', 79.50, NULL),
- (14, N'Quý 3/2026', '2026-09-28', 90.00, NULL),
- (15, N'Quý 3/2026', '2026-09-28', 94.00, N'Hoàn thành sớm dự án nội bộ.'),
- (16, N'Quý 3/2026', '2026-09-28', 87.00, NULL),
- (17, N'Quý 3/2026', '2026-09-28', 71.00, NULL),
- (18, N'Quý 3/2026', '2026-09-28', 82.00, NULL),
- (21, N'Quý 3/2026', '2026-09-28', 62.00, N'Thực tập sinh, cần cải thiện kỹ năng SQL.'),
- (22, N'Quý 3/2026', '2026-09-28', 77.00, NULL),
- (23, N'Quý 3/2026', '2026-09-28', 66.00, NULL)
-) AS d (MaNV, Ky, Ngay, Diem, NhanXet);
+DECLARE @DanhGia TABLE (MaDG INT PRIMARY KEY, MaNV INT NOT NULL, Thang INT NOT NULL, Nam INT NOT NULL,
+                        NgayDanhGia DATE NOT NULL, HieuSuatDuKien DECIMAL(6, 2) NOT NULL, NhanXet NVARCHAR(500) NULL);
+INSERT INTO @DanhGia (MaDG, MaNV, Thang, Nam, NgayDanhGia, HieuSuatDuKien, NhanXet) VALUES
+ ( 1,  1, 12, 2025, '2025-12-20',  92.00, N'Hoàn thành vượt kế hoạch doanh thu năm.'),
+ ( 2,  2, 12, 2025, '2025-12-20',  88.00, N'Tổ chức tuyển dụng đúng tiến độ.'),
+ ( 3,  3, 12, 2025, '2025-12-20',  90.50, N'Quyết toán năm chính xác, đúng hạn.'),
+ ( 4,  4, 12, 2025, '2025-12-20',  85.00, NULL),
+ ( 5,  5, 12, 2025, '2025-12-20',  93.00, N'Dẫn dắt dự án chuyển đổi hệ thống thành công.'),
+ ( 6,  6, 12, 2025, '2025-12-20',  81.00, NULL),
+ ( 7,  7, 12, 2025, '2025-12-20',  86.00, NULL),
+ ( 8,  8, 12, 2025, '2025-12-20',  72.00, N'Cần chủ động hơn trong công việc.'),
+ ( 9,  9, 12, 2025, '2025-12-20',  78.50, NULL),
+ (10, 10, 12, 2025, '2025-12-20',  64.00, N'Còn chậm tiến độ báo cáo tháng.'),
+ (11, 11, 12, 2025, '2025-12-20',  83.00, NULL),
+ (12, 12, 12, 2025, '2025-12-20',  76.00, NULL),
+ (13, 14, 12, 2025, '2025-12-20',  89.00, NULL),
+ (14, 15, 12, 2025, '2025-12-20',  91.00, N'Đóng góp lớn cho dự án nội bộ.'),
+ (15, 16, 12, 2025, '2025-12-20',  84.00, NULL),
+ (16, 17, 12, 2025, '2025-12-20',  68.00, NULL),
+ (17, 18, 12, 2025, '2025-12-20',  80.00, NULL),
+ (18, 19, 12, 2025, '2025-12-20',  45.00, N'Không đạt chỉ tiêu, đã xin nghỉ việc cuối năm.'),
+ (19, 20, 12, 2025, '2025-12-20',  70.00, NULL),
+ (20, 22, 12, 2025, '2025-12-20',  74.00, N'Thích nghi nhanh với công việc.'),
+ (21, 23, 12, 2025, '2025-12-20',  58.00, N'Mới vào làm, cần thêm thời gian.'),
+ (22,  7,  9, 2026, '2026-09-28',  88.00, NULL),
+ (23,  8,  9, 2026, '2026-09-28',  75.00, N'Có tiến bộ so với năm trước.'),
+ (24,  9,  9, 2026, '2026-09-28',  81.00, NULL),
+ (25, 11,  9, 2026, '2026-09-28',  86.00, NULL),
+ (26, 12,  9, 2026, '2026-09-28',  79.50, NULL),
+ (27, 14,  9, 2026, '2026-09-28',  90.00, NULL),
+ (28, 15,  9, 2026, '2026-09-28',  94.00, N'Hoàn thành sớm dự án nội bộ.'),
+ (29, 16,  9, 2026, '2026-09-28',  87.00, NULL),
+ (30, 17,  9, 2026, '2026-09-28',  71.00, NULL),
+ (31, 18,  9, 2026, '2026-09-28',  82.00, NULL),
+ (32, 21,  9, 2026, '2026-09-28',  62.00, N'Thực tập sinh, cần cải thiện kỹ năng SQL.'),
+ (33, 22,  9, 2026, '2026-09-28',  77.00, NULL),
+ (34, 23,  9, 2026, '2026-09-28',  66.00, NULL);
+
+DECLARE @MauKPI TABLE (MaPB INT NOT NULL, STT INT NOT NULL, TenKPI NVARCHAR(200) NOT NULL, KPIMucTieu DECIMAL(18, 2) NOT NULL,
+                       TrongSo DECIMAL(5, 2) NOT NULL, Lech DECIMAL(6, 2) NOT NULL, SoLe INT NOT NULL);
+INSERT INTO @MauKPI (MaPB, STT, TenKPI, KPIMucTieu, TrongSo, Lech, SoLe) VALUES
+ (1, 1, N'Doanh thu toàn công ty (tỷ đồng)',            50, 50,  4, 2),
+ (1, 2, N'Lợi nhuận sau thuế (tỷ đồng)',                  8, 30, -4, 2),
+ (1, 3, N'Dự án chiến lược hoàn thành (%)',             100, 20, -4, 0),
+ (2, 1, N'Số hồ sơ tuyển dụng xử lý',                   120, 50,  4, 0),
+ (2, 2, N'Hồ sơ nhân sự cập nhật đúng hạn (%)',         100, 30, -4, 0),
+ (2, 3, N'Số giờ đào tạo tổ chức',                       40, 20, -4, 0),
+ (3, 1, N'Số chứng từ xử lý',                           400, 50,  4, 0),
+ (3, 2, N'Báo cáo nộp đúng hạn (%)',                    100, 30, -4, 0),
+ (3, 3, N'Bảng lương hoàn thành đúng hạn (%)',          100, 20, -4, 0),
+ (4, 1, N'Doanh số (triệu đồng)',                       800, 50,  4, 0),
+ (4, 2, N'Số khách hàng mới',                            25, 30, -4, 0),
+ (4, 3, N'Khách hàng hài lòng (%)',                     100, 20, -4, 0),
+ (5, 1, N'Số task hoàn thành',                           60, 50,  4, 0),
+ (5, 2, N'Lỗi được xử lý đúng hạn (%)',                 100, 30, -4, 0),
+ (5, 3, N'Thời gian hoạt động hệ thống (%)',            100, 20, -4, 0),
+ (6, 1, N'Số khách hàng tiềm năng (leads)',             300, 50,  4, 0),
+ (6, 2, N'Số chiến dịch hoàn thành',                     10, 30, -4, 0),
+ (6, 3, N'Lượt tương tác mạng xã hội (nghìn)',           50, 20, -4, 0);
+
+DECLARE @ChiTiet TABLE (MaDG INT NOT NULL, STT INT NOT NULL, TenKPI NVARCHAR(200) NOT NULL, KPIMucTieu DECIMAL(18, 2) NOT NULL,
+                        KPIThucTe DECIMAL(18, 2) NOT NULL, TrongSo DECIMAL(5, 2) NOT NULL,
+                        HieuSuatKPI AS CAST(ROUND(KPIThucTe * 100 / KPIMucTieu, 2) AS DECIMAL(6, 2)),
+                        PRIMARY KEY (MaDG, STT));
+INSERT INTO @ChiTiet (MaDG, STT, TenKPI, KPIMucTieu, KPIThucTe, TrongSo)
+SELECT dg.MaDG, k.STT, k.TenKPI, k.KPIMucTieu,
+       ROUND(k.KPIMucTieu * (dg.HieuSuatDuKien + k.Lech) / 100, k.SoLe), k.TrongSo
+FROM @DanhGia AS dg
+JOIN dbo.NHANVIEN AS nv ON nv.MaNV = dg.MaNV
+JOIN @MauKPI AS k ON k.MaPB = nv.MaPB;
+
+SET IDENTITY_INSERT dbo.DANH_GIA ON;
+INSERT INTO dbo.DANH_GIA (MaDG, MaNV, Thang, Nam, NgayDanhGia, HieuSuatKPITong, XepLoai, NhanXet)
+SELECT dg.MaDG, dg.MaNV, dg.Thang, dg.Nam, dg.NgayDanhGia, t.Tong,
+       CASE WHEN t.Tong >= 90 THEN N'Xuất sắc' WHEN t.Tong >= 80 THEN N'Giỏi' WHEN t.Tong >= 65 THEN N'Khá'
+            WHEN t.Tong >= 50 THEN N'Trung bình' ELSE N'Yếu' END,
+       dg.NhanXet
+FROM @DanhGia AS dg
+CROSS APPLY (SELECT CAST(ROUND(SUM(ct.HieuSuatKPI * ct.TrongSo) / 100, 2) AS DECIMAL(6, 2)) AS Tong
+             FROM @ChiTiet AS ct WHERE ct.MaDG = dg.MaDG) AS t;
+SET IDENTITY_INSERT dbo.DANH_GIA OFF;
+
+INSERT INTO dbo.DANH_GIA_CHI_TIET (MaDG, STT, TenKPI, KPIMucTieu, KPIThucTe, TrongSo, HieuSuatKPI)
+SELECT MaDG, STT, TenKPI, KPIMucTieu, KPIThucTe, TrongSo, HieuSuatKPI FROM @ChiTiet;
 
 /* ---------------------------------------------------------------------
    12. KHEN_THUONG (10)
@@ -423,23 +473,39 @@ SELECT MaNV, Thang, Nam, LuongCoBan, LuongHieuSuat, PhuCap, TienThuong, KhauTru,
 FROM Luong;
 
 /* ---------------------------------------------------------------------
-   16. PHUC_LOI (14)
+   16. DS_PHUC_LOI (7) – danh mục loại phúc lợi: Đang áp dụng / Hết hiệu lực
    --------------------------------------------------------------------- */
-INSERT INTO dbo.PHUC_LOI (MaNV, TenPhucLoi, NgayBatDau, NgayKetThuc, GiaTri, TrangThai) VALUES
- ( 1, N'Bảo hiểm sức khỏe cao cấp',   '2026-01-01', '2026-12-31', 15000000, N'Đang áp dụng'),
- ( 2, N'Bảo hiểm sức khỏe cao cấp',   '2026-01-01', '2026-12-31', 10000000, N'Đang áp dụng'),
- ( 5, N'Bảo hiểm sức khỏe cao cấp',   '2026-01-01', '2026-12-31', 10000000, N'Đang áp dụng'),
- ( 7, N'Hỗ trợ ăn trưa',              '2026-01-01', NULL,           730000, N'Đang áp dụng'),
- ( 8, N'Hỗ trợ ăn trưa',              '2026-01-01', NULL,           730000, N'Đang áp dụng'),
- (12, N'Hỗ trợ gửi xe',               '2025-06-01', NULL,           200000, N'Đang áp dụng'),
- (15, N'Hỗ trợ học phí thạc sĩ',      '2025-09-01', '2027-08-31', 30000000, N'Đang áp dụng'),
- (16, N'Khám sức khỏe định kỳ',       '2026-06-10', '2026-06-10',  1500000, N'Đã kết thúc'),
- (17, N'Khám sức khỏe định kỳ',       '2026-06-10', '2026-06-10',  1500000, N'Đã kết thúc'),
- (10, N'Hỗ trợ ăn trưa',              '2025-01-01', NULL,           730000, N'Tạm dừng'),
- (20, N'Hỗ trợ thai sản',             '2026-05-01', '2026-10-31',  5000000, N'Đang áp dụng'),
- (13, N'Hỗ trợ ăn trưa',              '2024-01-01', '2025-06-30',   730000, N'Đã kết thúc'),
- (19, N'Hỗ trợ gửi xe',               '2024-01-01', '2025-12-31',   200000, N'Đã kết thúc'),
- (21, N'Hỗ trợ ăn trưa',              '2026-07-01', NULL,           730000, N'Đang áp dụng');
+SET IDENTITY_INSERT dbo.DS_PHUC_LOI ON;
+INSERT INTO dbo.DS_PHUC_LOI (MaLoaiPL, TenPhucLoi, ChiTiet, TrangThai) VALUES
+ (1, N'Bảo hiểm sức khỏe cao cấp', N'Gói bảo hiểm sức khỏe bổ sung cho giám đốc và trưởng phòng, hiệu lực theo năm.',                         N'Đang áp dụng'),
+ (2, N'Hỗ trợ ăn trưa',            N'730.000 đ/tháng cho nhân viên làm việc toàn thời gian tại văn phòng; dừng khi nghỉ không lương.',       N'Đang áp dụng'),
+ (3, N'Hỗ trợ gửi xe',             N'200.000 đ/tháng cho nhân viên gửi xe tại tòa nhà công ty.',                                             N'Đang áp dụng'),
+ (4, N'Hỗ trợ học phí thạc sĩ',    N'Tối đa 30.000.000 đ cho chương trình thạc sĩ phù hợp công việc; cam kết làm việc 2 năm sau tốt nghiệp.', N'Đang áp dụng'),
+ (5, N'Khám sức khỏe định kỳ',     N'Khám sức khỏe tổng quát mỗi năm một lần tại bệnh viện liên kết.',                                       N'Đang áp dụng'),
+ (6, N'Hỗ trợ thai sản',           N'Hỗ trợ thêm ngoài chế độ BHXH trong thời gian nghỉ thai sản.',                                          N'Đang áp dụng'),
+ (7, N'Hỗ trợ điện thoại',         N'150.000 đ/tháng cho nhân viên kinh doanh; ngừng áp dụng từ 01/07/2025.',                                N'Hết hiệu lực');
+SET IDENTITY_INSERT dbo.DS_PHUC_LOI OFF;
+
+/* ---------------------------------------------------------------------
+   17. PHUC_LOI (16) – NgayKetThuc NULL: đang hưởng, chưa xác định ngày kết thúc
+   --------------------------------------------------------------------- */
+INSERT INTO dbo.PHUC_LOI (MaNV, MaLoaiPL, NgayBatDau, NgayKetThuc, GiaTri) VALUES
+ ( 1, 1, '2026-01-01', '2026-12-31', 15000000),
+ ( 2, 1, '2026-01-01', '2026-12-31', 10000000),
+ ( 5, 1, '2026-01-01', '2026-12-31', 10000000),
+ ( 7, 2, '2026-01-01', NULL,           730000),
+ ( 8, 2, '2026-01-01', NULL,           730000),
+ (12, 3, '2025-06-01', NULL,           200000),
+ (15, 4, '2025-09-01', '2027-08-31', 30000000),
+ (16, 5, '2026-06-10', '2026-06-10',  1500000),
+ (17, 5, '2026-06-10', '2026-06-10',  1500000),
+ (10, 2, '2025-01-01', '2026-07-31',   730000),   -- dừng khi nghỉ không lương từ 01/08/2026
+ (20, 6, '2026-05-01', '2026-10-31',  5000000),
+ (13, 2, '2024-01-01', '2025-06-30',   730000),
+ (19, 3, '2024-01-01', '2025-12-31',   200000),
+ (21, 2, '2026-07-01', NULL,           730000),
+ (11, 7, '2023-01-01', '2025-06-30',   150000),
+ (13, 7, '2024-01-01', '2025-06-30',   150000);
 
 COMMIT TRANSACTION;
 PRINT N'Đã nạp dữ liệu mẫu.';
@@ -454,7 +520,7 @@ GO
    Kiểm tra
    ===================================================================== */
 
--- Số dòng 16 bảng
+-- Số dòng 18 bảng
 SELECT N'PHONGBAN' AS Bang, COUNT(*) AS SoDong FROM dbo.PHONGBAN
 UNION ALL SELECT N'CHUCVU', COUNT(*) FROM dbo.CHUCVU
 UNION ALL SELECT N'NHANVIEN', COUNT(*) FROM dbo.NHANVIEN
@@ -466,10 +532,12 @@ UNION ALL SELECT N'UNG_TUYEN', COUNT(*) FROM dbo.UNG_TUYEN
 UNION ALL SELECT N'DAOTAO', COUNT(*) FROM dbo.DAOTAO
 UNION ALL SELECT N'THAM_GIA_DAO_TAO', COUNT(*) FROM dbo.THAM_GIA_DAO_TAO
 UNION ALL SELECT N'DANH_GIA', COUNT(*) FROM dbo.DANH_GIA
+UNION ALL SELECT N'DANH_GIA_CHI_TIET', COUNT(*) FROM dbo.DANH_GIA_CHI_TIET
 UNION ALL SELECT N'KHEN_THUONG', COUNT(*) FROM dbo.KHEN_THUONG
 UNION ALL SELECT N'CHAM_CONG', COUNT(*) FROM dbo.CHAM_CONG
 UNION ALL SELECT N'DON_NGHI_PHEP', COUNT(*) FROM dbo.DON_NGHI_PHEP
 UNION ALL SELECT N'BANG_LUONG', COUNT(*) FROM dbo.BANG_LUONG
+UNION ALL SELECT N'DS_PHUC_LOI', COUNT(*) FROM dbo.DS_PHUC_LOI
 UNION ALL SELECT N'PHUC_LOI', COUNT(*) FROM dbo.PHUC_LOI;
 
 -- Các case cần có (Master Handoff §7)
@@ -479,6 +547,7 @@ UNION ALL SELECT N'UNG_TUYEN.KetQua', KetQua, COUNT(*) FROM dbo.UNG_TUYEN GROUP 
 UNION ALL SELECT N'DON_NGHI_PHEP.TrangThai', TrangThai, COUNT(*) FROM dbo.DON_NGHI_PHEP GROUP BY TrangThai
 UNION ALL SELECT N'CHAM_CONG có OT', CASE WHEN SoGioOT > 0 THEN N'Có OT' ELSE N'Không OT' END, COUNT(*) FROM dbo.CHAM_CONG GROUP BY CASE WHEN SoGioOT > 0 THEN N'Có OT' ELSE N'Không OT' END
 UNION ALL SELECT N'DANH_GIA.XepLoai', XepLoai, COUNT(*) FROM dbo.DANH_GIA GROUP BY XepLoai
+UNION ALL SELECT N'DS_PHUC_LOI.TrangThai', TrangThai, COUNT(*) FROM dbo.DS_PHUC_LOI GROUP BY TrangThai
 UNION ALL SELECT N'BANG_LUONG tháng', CONCAT(Thang, N'/', Nam), COUNT(*) FROM dbo.BANG_LUONG GROUP BY Thang, Nam
 ORDER BY NoiDung, GiaTri;
 
@@ -507,7 +576,18 @@ FROM dbo.DON_NGHI_PHEP a JOIN dbo.DON_NGHI_PHEP b
  AND a.TuNgay <= b.DenNgay AND b.TuNgay <= a.DenNgay
 UNION ALL
 SELECT N'Đào tạo NV không đang làm lúc học', COUNT(*)
-FROM dbo.THAM_GIA_DAO_TAO tg JOIN dbo.NHANVIEN nv ON nv.MaNV = tg.MaNV WHERE nv.NgayVaoLam > tg.NgayThamGia;
+FROM dbo.THAM_GIA_DAO_TAO tg JOIN dbo.NHANVIEN nv ON nv.MaNV = tg.MaNV WHERE nv.NgayVaoLam > tg.NgayThamGia
+UNION ALL
+SELECT N'HieuSuatKPI lệch Thực tế / Mục tiêu', COUNT(*)
+FROM dbo.DANH_GIA_CHI_TIET WHERE HieuSuatKPI <> CAST(ROUND(KPIThucTe * 100 / KPIMucTieu, 2) AS DECIMAL(6, 2))
+UNION ALL
+SELECT N'Đánh giá có tổng TrongSo khác 100', COUNT(*)
+FROM dbo.DANH_GIA dg WHERE ISNULL((SELECT SUM(ct.TrongSo) FROM dbo.DANH_GIA_CHI_TIET ct WHERE ct.MaDG = dg.MaDG), 0) <> 100
+UNION ALL
+SELECT N'HieuSuatKPITong lệch tổng có trọng số', COUNT(*)
+FROM dbo.DANH_GIA dg
+WHERE dg.HieuSuatKPITong <> (SELECT CAST(ROUND(SUM(ct.HieuSuatKPI * ct.TrongSo) / 100, 2) AS DECIMAL(6, 2))
+                             FROM dbo.DANH_GIA_CHI_TIET ct WHERE ct.MaDG = dg.MaDG);
 GO
 
 SET NOEXEC OFF;

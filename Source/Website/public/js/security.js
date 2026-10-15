@@ -23,7 +23,7 @@ function renderLoginResult(r) {
   if (!r.authenticated) return `<div class="alert alert-danger mb-2"><strong>✘ authenticated = false</strong> · login <code>${esc(r.username)}</code></div>${errorBox(r.error, 'Phản hồi của SQL Server')}`;
   const parts = [`<div class="alert alert-success mb-2"><strong>✔ authenticated = true</strong> · SQL login <code>${esc(r.identity.loginName)}</code> · DB user <code>${esc(r.identity.databaseUser)}</code> · DB <code>${esc(r.identity.databaseName)}</code></div>`];
   parts.push('<div class="small fw-semibold">Role membership (IS_ROLEMEMBER: 1 = thành viên, 0 = không, NULL = role chưa tồn tại)</div>', queryBlock(r.roleMembership, ''));
-  parts.push('<div class="small fw-semibold mt-2">Permission matrix (HAS_PERMS_BY_NAME, 1 = có quyền)</div>', queryBlock(r.permissionMatrix, 'Database chưa có bảng nào trong 16 bảng contract.'));
+  parts.push('<div class="small fw-semibold mt-2">Permission matrix (HAS_PERMS_BY_NAME, 1 = có quyền)</div>', queryBlock(r.permissionMatrix, 'Database chưa có bảng nào trong các bảng contract.'));
   if (r.selectTry) {
     parts.push(`<div class="small fw-semibold mt-2">Thử SELECT trên <code>${esc(r.selectTry.table)}</code></div>`);
     parts.push(r.selectTry.allowed
@@ -47,8 +47,8 @@ async function takeSnapshot(compare) {
     $('imp-compare').disabled = false;
     return;
   }
-  const before = new Map(snapshot.rows.map((r) => [String(r[d.pk]), JSON.stringify(r)]));
-  const changed = new Set(d.rows.filter((r) => before.get(String(r[d.pk])) !== JSON.stringify(r)).map((r) => String(r[d.pk])));
+  const before = new Map(snapshot.rows.map((r) => [rowKey(r, d.pk), JSON.stringify(r)]));
+  const changed = new Set(d.rows.filter((r) => before.get(rowKey(r, d.pk)) !== JSON.stringify(r)).map((r) => rowKey(r, d.pk)));
   outBox.innerHTML = `<div class="small mb-1"><span class="badge text-bg-secondary">Trước</span> ${snapshot.total} dòng → <span class="badge text-bg-primary">Sau</span> ${d.total} dòng
     · <span class="badge text-bg-warning">${changed.size} dòng thêm/sửa</span> (trong 500 dòng PK lớn nhất)</div>${renderTable(d, { pk: d.pk, changedKeys: changed })}`;
 }
