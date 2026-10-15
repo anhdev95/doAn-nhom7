@@ -6,7 +6,8 @@ Mọi script chạy lại nhiều lần được. File `.sql` lưu UTF-8 có BOM
 ```text
 Security/
 ├── Authentication.sql                 1. Xác thực
-├── Authorization.sql                  2. Phân quyền
+├── Authorization.sql                  2. Phân quyền (bảng, cột, DENY, REVOKE)
+├── Authorization_XuLy.sql             2b. Phân quyền EXECUTE trên SP/Function (chạy sau Processing)
 ├── Import_Export/
 │   ├── 01_Import_ChamCong.sql         3. Import (CSV → CHAM_CONG)
 │   ├── cham_cong_import.csv              file dữ liệu import mẫu
@@ -43,7 +44,7 @@ Security/
 | BANG_LUONG | SELECT · **DENY** INSERT/UPDATE/DELETE | SELECT, INSERT, UPDATE | SELECT · **DENY** INSERT/UPDATE/DELETE |
 
 Không role nào có DELETE (dữ liệu nhân sự chỉ cập nhật trạng thái). Demo REVOKE: script cấp tạm `DELETE CHAM_CONG` cho HR rồi thu hồi.
-Quyền EXECUTE trên procedure/function của Tuyến: cấp theo từng object sau khi Tuyến bàn giao (Bước 6 trong script).
+Quyền EXECUTE trên procedure/function (`Authorization_XuLy.sql`, chạy sau 4 script Processing): HR_ROLE chạy SP01–SP06, FN01–FN03; ACCOUNTING_ROLE chạy SP07 (tính lương), FN01, FN02; MANAGER_ROLE chạy SP01, SP04–SP06, FN01, FN02. Cấp theo từng object (không cấp cả schema) vì procedure chạy theo ownership chaining sẽ bỏ qua DENY trên bảng – chỉ role được sửa BANG_LUONG mới được chạy SP07.
 
 ## Thứ tự chạy & kịch bản demo
 

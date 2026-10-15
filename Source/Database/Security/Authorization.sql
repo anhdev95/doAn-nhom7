@@ -146,10 +146,8 @@ GO
 
 /* ---------------------------------------------------------------------
    Bước 6. Quyền EXECUTE trên Procedure/Function của phần Xử lý thông tin
-   Cấp SAU khi Tuyến bàn giao object, theo đúng tên object, ví dụ:
-       GRANT EXECUTE ON dbo.<TenProcedure> TO HR_ROLE;
-       GRANT EXECUTE ON dbo.<TenProcedureLuong> TO ACCOUNTING_ROLE;
-       GRANT SELECT  ON dbo.<TenTableFunction> TO MANAGER_ROLE;
+   Cấp trong Authorization_XuLy.sql (chạy sau 4 script Processing vì object phải tồn tại
+   trước khi GRANT), theo từng object và từng role.
    Không cấp EXECUTE ON SCHEMA::dbo cho 3 role: procedure chạy theo ownership
    chaining sẽ bỏ qua các DENY ở trên.
    --------------------------------------------------------------------- */

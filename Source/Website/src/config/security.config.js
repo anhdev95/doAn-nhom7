@@ -14,7 +14,7 @@ module.exports = {
   // và trạng thái "đã có file" – việc chạy script thực hiện trong SSMS theo docs.
   scripts: {
     authentication: ['Security/Authentication.sql'],
-    authorization: ['Security/Authorization.sql'],
+    authorization: ['Security/Authorization.sql', 'Security/Authorization_XuLy.sql'],
     importExport: ['Security/Import_Export'],
     backupRestore: ['Security/Backup_Restore'],
   },

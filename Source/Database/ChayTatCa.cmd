@@ -1,7 +1,7 @@
 @echo off
 REM =====================================================================
 REM IE103 - Nhom 7 - Tao database IE103_HRM_Nhom7 tu dau bang sqlcmd (Windows)
-REM Chay: 01 -> 02 -> 03 -> 04 -> Security\Authentication -> Security\Authorization -> Processing
+REM Chay: 01 -> 02 -> 03 -> 04 -> Security\Authentication -> Security\Authorization -> Processing -> Security\Authorization_XuLy
 REM
 REM Cach dung (mo Command Prompt tai thu muc nay):
 REM     ChayTatCa.cmd                    Windows Authentication, server localhost
@@ -14,7 +14,7 @@ set SERVER=localhost
 if "%~1"=="" (set AUTH=-E) else (set AUTH=-U %1 -P %2)
 cd /d "%~dp0"
 
-for %%F in (01_CreateDatabase.sql 02_CreateTables.sql 03_Constraints.sql 04_SeedData.sql Security\Authentication.sql Security\Authorization.sql Processing\Procedures.sql Processing\Functions.sql Processing\Triggers.sql Processing\Cursors.sql) do (
+for %%F in (01_CreateDatabase.sql 02_CreateTables.sql 03_Constraints.sql 04_SeedData.sql Security\Authentication.sql Security\Authorization.sql Processing\Procedures.sql Processing\Functions.sql Processing\Triggers.sql Processing\Cursors.sql Security\Authorization_XuLy.sql) do (
     echo.
     echo ===== %%F
     sqlcmd -S %SERVER% %AUTH% -C -f 65001 -b -i "%%F"
