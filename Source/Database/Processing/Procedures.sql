@@ -1,3 +1,6 @@
+USE IE103_HRM_Nhom7;
+GO
+
 --1. Stored procedure SP01_HopDongSapHetHan
 CREATE OR ALTER PROCEDURE dbo.SP01_HopDongSapHetHan
     @SoNgay  INT = 30,          -- số ngày tới, mặc định 30

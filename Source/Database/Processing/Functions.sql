@@ -1,3 +1,6 @@
+USE IE103_HRM_Nhom7;
+GO
+
 --1. Function FN01_TongNgayNghi
 CREATE OR ALTER FUNCTION dbo.FN01_TongNgayNghi (@MaNV INT, @Thang INT, @Nam INT)
 RETURNS DECIMAL(5,2)

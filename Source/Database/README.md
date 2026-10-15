@@ -6,15 +6,15 @@ Database/
 ├── 02_CreateTables.sql       18 bảng theo Database contract + tân từ (MS_Description)
 ├── 03_Constraints.sql        18 FK, 11 UNIQUE, 35 CHECK, 22 DEFAULT, index cột FK
 ├── 04_SeedData.sql           dữ liệu mẫu nhất quán + truy vấn kiểm tra
-├── ChayTatCa.cmd             chạy 01 → 04 → Security (Authentication, Authorization) bằng sqlcmd
+├── ChayTatCa.cmd             chạy 01 → 04 → Security (Authentication, Authorization) → Processing bằng sqlcmd
 ├── ERD/                      ERD.png (báo cáo), ERD.mmd (Mermaid), ERD.md (mô tả quan hệ)
-├── Processing/               5 SP · 5 Trigger · 3 Function · 2 Cursor – Tuyến (chờ bàn giao)
+├── Processing/               5 SP · 5 Trigger · 3 Function · 2 Cursor + Tests/ – Tuyến
 └── Security/                 Xác thực, phân quyền, import/export, backup/restore – Đức
 ```
 
 ## Cách chạy
 
-**SSMS:** mở và Execute lần lượt `01` → `02` → `03` → `04` (đăng nhập sysadmin, vd. `sa`), sau đó `Security/Authentication.sql` → `Security/Authorization.sql`.
+**SSMS:** mở và Execute lần lượt `01` → `02` → `03` → `04` (đăng nhập sysadmin, vd. `sa`), sau đó `Security/Authentication.sql` → `Security/Authorization.sql` → `Processing/Procedures.sql` → `Functions.sql` → `Triggers.sql` → `Cursors.sql`.
 
 **Một lệnh (Windows):**
 
@@ -26,7 +26,7 @@ ChayTatCa.cmd sa MatKhau      :: SQL Server Authentication
 
 Kiểm tra: `cd ..\Website && npm run check-db` → phải `0 FAIL`.
 
-Mỗi script tự dừng nếu đã chạy trước đó (không ghi đè dữ liệu). Tạo lại từ đầu: trong `01_CreateDatabase.sql` đặt `@TaoLai = 1` (**xóa toàn bộ dữ liệu**) rồi chạy lại `01` → `04` và 2 script Security.
+Mỗi script tự dừng nếu đã chạy trước đó (không ghi đè dữ liệu). Tạo lại từ đầu: trong `01_CreateDatabase.sql` đặt `@TaoLai = 1` (**xóa toàn bộ dữ liệu**) rồi chạy lại `01` → `04`, 2 script Security và 4 script Processing.
 
 ## Quyết định thiết kế (bổ sung, không đổi contract)
 

@@ -1,3 +1,6 @@
+USE IE103_HRM_Nhom7;
+GO
+
 --1. Trigger "Không trùng đơn nghỉ phép"
 CREATE OR ALTER TRIGGER dbo.TRG01_DonNghiPhep_KhongTrung
 ON dbo.DON_NGHI_PHEP

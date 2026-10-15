@@ -1,3 +1,6 @@
+USE IE103_HRM_Nhom7;
+GO
+
 /* =====================================================================
    CURSOR 1: SP06_TinhHieuSuatThang
    Duyệt từng bản DANH_GIA trong tháng:
